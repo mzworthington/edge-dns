@@ -1,0 +1,8 @@
+packages:
+  - 'components/*'
+  - 'zones/*'
+
+allowBuilds:
+  protobufjs: true
+minimumReleaseAgeExclude:
+  - '@pulumi/cloudflare'

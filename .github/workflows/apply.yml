@@ -1,0 +1,61 @@
+name: Pulumi apply
+
+# Apply on main only (after preview workflow success on the same SHA is expected via branch protection).
+# Create Environment "pulumi-prod" with required reviewers:
+#   Settings → Environments → pulumi-prod → Required reviewers
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'zones/archlens.dev/**'
+      - 'components/**'
+      - '.github/workflows/apply.yml'
+      - '.github/actions/setup-edge-dns-pulumi/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: edge-dns-prod-apply
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply (pulumi up)
+    runs-on: ubuntu-latest
+    environment:
+      name: pulumi-prod
+      url: https://archlens.dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup edge-dns Pulumi
+        uses: ./.github/actions/setup-edge-dns-pulumi
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          EDGE_DNS_ZONE_NAME: ${{ vars.EDGE_DNS_ZONE_NAME }}
+          EDGE_DNS_SSL: ${{ vars.EDGE_DNS_SSL }}
+          EDGE_DNS_ALWAYS_USE_HTTPS: ${{ vars.EDGE_DNS_ALWAYS_USE_HTTPS }}
+          EDGE_DNS_MIN_TLS_VERSION: ${{ vars.EDGE_DNS_MIN_TLS_VERSION }}
+          EDGE_DNS_AUTOMATIC_HTTPS_REWRITES: ${{ vars.EDGE_DNS_AUTOMATIC_HTTPS_REWRITES }}
+          EDGE_DNS_TLS13: ${{ vars.EDGE_DNS_TLS13 }}
+
+      - name: Pulumi up
+        uses: pulumi/actions@v6
+        with:
+          command: up
+          stack-name: prod
+          work-dir: zones/archlens.dev
+          diff: true
+          color: always
+          suppress-progress: true
+          comment-on-summary: true
+          always-include-summary: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

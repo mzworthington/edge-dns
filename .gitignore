@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+zones/**/node_modules/
+components/**/node_modules/
+
+# Builds
+bin/
+dist/
+*.tsbuildinfo
+
+# Logs
+*.log
+pnpm-debug.log*
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Pulumi
+.pulumi/
+**/Pulumi.*.yaml
+!**/Pulumi.yaml
+!**/Pulumi.prod.yaml.example

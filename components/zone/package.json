@@ -1,0 +1,15 @@
+{
+  "name": "@edge-dns/zone",
+  "private": true,
+  "version": "0.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "dependencies": {
+    "@pulumi/cloudflare": "6.19.0",
+    "@pulumi/pulumi": "3.256.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "typescript": "5.9.3"
+  }
+}

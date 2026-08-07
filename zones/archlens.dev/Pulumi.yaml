@@ -1,0 +1,7 @@
+name: edge-dns-archlens-dev
+description: Cloudflare zone control plane for archlens.dev (zone + baselines; no product DNS)
+runtime:
+  name: nodejs
+  options:
+    packagemanager: pnpm
+    typescript: true

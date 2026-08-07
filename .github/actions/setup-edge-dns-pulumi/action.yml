@@ -1,0 +1,49 @@
+name: Setup edge-dns Pulumi
+description: Install deps and configure the archlens.dev Pulumi prod stack from GitHub secrets
+runs:
+  using: composite
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v6
+      with:
+        version: 11.20.0
+        run_install: false
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v7
+      with:
+        node-version: 24
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Setup Pulumi CLI
+      uses: pulumi/setup-pulumi@v2
+
+    - name: Configure Pulumi stack
+      shell: bash
+      working-directory: zones/archlens.dev
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ env.PULUMI_ACCESS_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+        CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_API_TOKEN }}
+        EDGE_DNS_ZONE_NAME: ${{ env.EDGE_DNS_ZONE_NAME }}
+        EDGE_DNS_SSL: ${{ env.EDGE_DNS_SSL }}
+        EDGE_DNS_ALWAYS_USE_HTTPS: ${{ env.EDGE_DNS_ALWAYS_USE_HTTPS }}
+        EDGE_DNS_MIN_TLS_VERSION: ${{ env.EDGE_DNS_MIN_TLS_VERSION }}
+        EDGE_DNS_AUTOMATIC_HTTPS_REWRITES: ${{ env.EDGE_DNS_AUTOMATIC_HTTPS_REWRITES }}
+        EDGE_DNS_TLS13: ${{ env.EDGE_DNS_TLS13 }}
+      run: |
+        set -euo pipefail
+        pulumi stack select prod 2>/dev/null || pulumi stack init prod
+        pulumi config set accountId "$CLOUDFLARE_ACCOUNT_ID"
+        pulumi config set zoneName "${EDGE_DNS_ZONE_NAME:-archlens.dev}"
+        pulumi config set ssl "${EDGE_DNS_SSL:-full}"
+        pulumi config set alwaysUseHttps "${EDGE_DNS_ALWAYS_USE_HTTPS:-on}"
+        pulumi config set minTlsVersion "${EDGE_DNS_MIN_TLS_VERSION:-1.2}"
+        pulumi config set automaticHttpsRewrites "${EDGE_DNS_AUTOMATIC_HTTPS_REWRITES:-on}"
+        pulumi config set tls13 "${EDGE_DNS_TLS13:-on}"
+        pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"

@@ -1,0 +1,5 @@
+{
+  "name": "edge-dns",
+  "private": true,
+  "packageManager": "pnpm@11.20.0"
+}
