@@ -1,0 +1,7 @@
+name: edge-dns
+description: Org Cloudflare zone control plane (zones + baselines; no product DNS)
+runtime:
+  name: nodejs
+  options:
+    packagemanager: pnpm
+    typescript: true

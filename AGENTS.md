@@ -12,9 +12,9 @@ Before starting work, read:
 ## Toolchain
 
 - Declared in `mise.toml` (Node, pnpm).
-- Pulumi programs live under `zones/<domain>/`; shared components under `components/`.
+- One Pulumi project at repo root (`edge-dns`); stack name = domain. Shared component: `components/zone`.
 
 ## Project notes
 
 - This repo owns **zones and baselines** only — not product Pages/DNS.
-- Before handover: `cd zones/archlens.dev && pnpm install && pnpm typecheck && pulumi preview` (with stack config).
+- Before handover: `pnpm install && pnpm typecheck && pulumi preview` (with stack selected).

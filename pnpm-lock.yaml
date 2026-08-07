@@ -6,10 +6,11 @@ settings:
 
 importers:
 
-  .: {}
-
-  components/zone:
+  .:
     dependencies:
+      '@edge-dns/zone':
+        specifier: workspace:*
+        version: link:components/zone
       '@pulumi/cloudflare':
         specifier: 6.19.0
         version: 6.19.0(typescript@5.9.3)
@@ -24,11 +25,8 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
 
-  zones/archlens.dev:
+  components/zone:
     dependencies:
-      '@edge-dns/zone':
-        specifier: workspace:*
-        version: link:../../components/zone
       '@pulumi/cloudflare':
         specifier: 6.19.0
         version: 6.19.0(typescript@5.9.3)

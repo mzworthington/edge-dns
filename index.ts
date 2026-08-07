@@ -11,6 +11,9 @@ const zoneType = config.get('zoneType') as
   | 'internal'
   | undefined;
 
+/** Logical resource name: archlens.dev → archlens-dev */
+const zoneSlug = zoneName.replace(/\./g, '-');
+
 /**
  * When true, manage baseline ZoneSettings (needs Zone Settings Read/Write on the API token).
  * Default false: product tokens often have DNS/Pages only; zone import still works.
@@ -30,7 +33,7 @@ const baselineSettings: ZoneBaselineSetting[] = manageSettings
     ]
   : [];
 
-const managed = new ManagedZone('archlens', {
+const managed = new ManagedZone(zoneSlug, {
   accountId,
   zoneName,
   type: zoneType ?? 'full',

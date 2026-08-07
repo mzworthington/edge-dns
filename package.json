@@ -1,5 +1,18 @@
 {
   "name": "edge-dns",
   "private": true,
-  "packageManager": "pnpm@11.20.0"
+  "packageManager": "pnpm@11.20.0",
+  "main": "index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@edge-dns/zone": "workspace:*",
+    "@pulumi/cloudflare": "6.19.0",
+    "@pulumi/pulumi": "3.256.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "typescript": "5.9.3"
+  }
 }

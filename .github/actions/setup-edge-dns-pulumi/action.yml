@@ -1,5 +1,9 @@
 name: Setup edge-dns Pulumi
-description: Install deps and configure the archlens.dev Pulumi prod stack from GitHub secrets
+description: Install deps and configure one edge-dns stack (zone name = stack name) from secrets
+inputs:
+  stack:
+    description: Pulumi stack name (domain), e.g. archlens.dev
+    required: true
 runs:
   using: composite
   steps:
@@ -25,22 +29,23 @@ runs:
 
     - name: Configure Pulumi stack
       shell: bash
-      working-directory: zones/archlens.dev
       env:
         PULUMI_ACCESS_TOKEN: ${{ env.PULUMI_ACCESS_TOKEN }}
         CLOUDFLARE_ACCOUNT_ID: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
         CLOUDFLARE_API_TOKEN: ${{ env.CLOUDFLARE_API_TOKEN }}
-        EDGE_DNS_ZONE_NAME: ${{ env.EDGE_DNS_ZONE_NAME }}
+        STACK: ${{ inputs.stack }}
         EDGE_DNS_SSL: ${{ env.EDGE_DNS_SSL }}
         EDGE_DNS_ALWAYS_USE_HTTPS: ${{ env.EDGE_DNS_ALWAYS_USE_HTTPS }}
         EDGE_DNS_MIN_TLS_VERSION: ${{ env.EDGE_DNS_MIN_TLS_VERSION }}
         EDGE_DNS_AUTOMATIC_HTTPS_REWRITES: ${{ env.EDGE_DNS_AUTOMATIC_HTTPS_REWRITES }}
         EDGE_DNS_TLS13: ${{ env.EDGE_DNS_TLS13 }}
+        EDGE_DNS_MANAGE_SETTINGS: ${{ env.EDGE_DNS_MANAGE_SETTINGS }}
       run: |
         set -euo pipefail
-        pulumi stack select prod 2>/dev/null || pulumi stack init prod
+        pulumi stack select "$STACK" 2>/dev/null || pulumi stack init "$STACK"
         pulumi config set accountId "$CLOUDFLARE_ACCOUNT_ID"
-        pulumi config set zoneName "${EDGE_DNS_ZONE_NAME:-archlens.dev}"
+        pulumi config set zoneName "$STACK"
+        pulumi config set manageSettings "${EDGE_DNS_MANAGE_SETTINGS:-false}"
         pulumi config set ssl "${EDGE_DNS_SSL:-full}"
         pulumi config set alwaysUseHttps "${EDGE_DNS_ALWAYS_USE_HTTPS:-on}"
         pulumi config set minTlsVersion "${EDGE_DNS_MIN_TLS_VERSION:-1.2}"
