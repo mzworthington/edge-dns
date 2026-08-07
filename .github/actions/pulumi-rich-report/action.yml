@@ -1,0 +1,91 @@
+name: Pulumi rich report
+description: >-
+  Run pulumi preview/up with per-resource diffs, ANSI color, job summary,
+  optional PR comments, and Pulumi Cloud dashboard links.
+inputs:
+  command:
+    description: Pulumi command to run (`preview` or `up`)
+    required: true
+  stack-name:
+    description: Pulumi stack name (short or org/project/stack)
+    required: true
+  work-dir:
+    description: Working directory containing Pulumi.yaml
+    required: false
+    default: '.'
+  comment-on-pr:
+    description: Post a preview summary comment on the pull request
+    required: false
+    default: 'false'
+  github-token:
+    description: Token used for PR comments when comment-on-pr is true
+    required: false
+    default: ${{ github.token }}
+outputs:
+  stack:
+    description: Fully-qualified Pulumi stack name
+    value: ${{ steps.dashboard.outputs.stack }}
+  url:
+    description: Pulumi Cloud dashboard URL for the stack
+    value: ${{ steps.dashboard.outputs.url }}
+runs:
+  using: composite
+  steps:
+    - name: Pulumi Cloud dashboard link
+      id: dashboard
+      shell: bash
+      working-directory: ${{ inputs.work-dir }}
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ env.PULUMI_ACCESS_TOKEN }}
+        STACK_NAME: ${{ inputs.stack-name }}
+      run: |
+        set -euo pipefail
+        if [[ -n "${STACK_NAME}" ]]; then
+          pulumi stack select "${STACK_NAME}" >/dev/null
+        fi
+        FQ="$(pulumi stack --show-name -Q)"
+        URL="https://app.pulumi.com/${FQ}"
+        UPDATES_URL="${URL}/updates"
+        echo "stack=${FQ}" >> "$GITHUB_OUTPUT"
+        echo "url=${URL}" >> "$GITHUB_OUTPUT"
+        {
+          echo "## Pulumi Cloud"
+          echo ""
+          echo "- **Stack:** \`${FQ}\`"
+          echo "- **Dashboard:** [${FQ}](${URL})"
+          echo "- **Updates:** [history](${UPDATES_URL})"
+          echo ""
+          if [[ "${{ inputs.command }}" == "preview" ]]; then
+            echo "Open the dashboard link after preview to inspect the live update (diff, resources, diagnostics)."
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
+        echo "::notice title=Pulumi Cloud::${URL}"
+        echo "Pulumi Cloud dashboard: ${URL}"
+        echo "Pulumi Cloud updates:   ${UPDATES_URL}"
+
+    - name: Pulumi ${{ inputs.command }}
+      uses: pulumi/actions@v6
+      with:
+        command: ${{ inputs.command }}
+        stack-name: ${{ inputs.stack-name }}
+        work-dir: ${{ inputs.work-dir }}
+        diff: true
+        color: always
+        suppress-progress: true
+        comment-on-pr: ${{ inputs.comment-on-pr }}
+        comment-on-summary: true
+        always-include-summary: true
+        github-token: ${{ inputs.github-token }}
+
+    - name: Append preview dashboard reminder
+      if: ${{ always() && inputs.command == 'preview' }}
+      shell: bash
+      env:
+        PULUMI_DASHBOARD_URL: ${{ steps.dashboard.outputs.url }}
+        PULUMI_STACK: ${{ steps.dashboard.outputs.stack }}
+      run: |
+        {
+          echo ""
+          echo "### After this preview"
+          echo "Review the rich diff above, then open **[Pulumi Cloud → ${PULUMI_STACK}](${PULUMI_DASHBOARD_URL})** for the interactive update view."
+        } >> "$GITHUB_STEP_SUMMARY"

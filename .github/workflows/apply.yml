@@ -14,6 +14,7 @@ on:
       - 'components/**'
       - '.github/workflows/apply.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
+      - '.github/actions/pulumi-rich-report/**'
   workflow_dispatch:
     inputs:
       stack:
@@ -77,15 +78,10 @@ jobs:
 
       - name: Pulumi up
         if: steps.gate.outputs.run == 'true'
-        uses: pulumi/actions@v6
+        uses: ./.github/actions/pulumi-rich-report
         with:
           command: up
           stack-name: ${{ matrix.stack }}
           work-dir: .
-          diff: true
-          color: always
-          suppress-progress: true
-          comment-on-summary: true
-          always-include-summary: true
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

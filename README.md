@@ -43,3 +43,23 @@ Zone settings baselines are off by default (`manageSettings=false`) until the AP
 
 - PR / push: Pulumi **preview** for every stack in the matrix
 - `main`: gated **apply** via GitHub Environment `pulumi-prod` (required reviewer)
+
+### Reusable: Pulumi rich report
+
+[`.github/actions/pulumi-rich-report`](.github/actions/pulumi-rich-report) wraps `pulumi/actions` with per-resource diffs, job summary, optional PR comments, and Pulumi Cloud dashboard links.
+
+Product repos can call it after their own setup step:
+
+```yaml
+- name: Pulumi preview
+  uses: mzworthington/edge-dns/.github/actions/pulumi-rich-report@main
+  with:
+    command: preview          # or up
+    stack-name: prod
+    work-dir: infra/cloudflare
+    comment-on-pr: ${{ github.event_name == 'pull_request' }}
+  env:
+    PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+```
+
+Pin to a commit SHA instead of `@main` when you want a frozen consumer.

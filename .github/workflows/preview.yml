@@ -12,6 +12,7 @@ on:
       - '.github/workflows/preview.yml'
       - '.github/workflows/apply.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
+      - '.github/actions/pulumi-rich-report/**'
   push:
     branches: [main]
     paths:
@@ -24,6 +25,7 @@ on:
       - '.github/workflows/preview.yml'
       - '.github/workflows/apply.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
+      - '.github/actions/pulumi-rich-report/**'
   workflow_dispatch:
 
 permissions:
@@ -66,17 +68,11 @@ jobs:
           EDGE_DNS_TLS13: ${{ vars.EDGE_DNS_TLS13 }}
 
       - name: Pulumi preview
-        uses: pulumi/actions@v6
+        uses: ./.github/actions/pulumi-rich-report
         with:
           command: preview
           stack-name: ${{ matrix.stack }}
           work-dir: .
-          diff: true
-          color: always
-          suppress-progress: true
           comment-on-pr: ${{ github.event_name == 'pull_request' }}
-          comment-on-summary: true
-          always-include-summary: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
