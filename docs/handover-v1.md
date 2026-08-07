@@ -1,33 +1,24 @@
-# Handover — edge-dns v1
+# Handover — edge-dns multi-zone
 
 ## Status
 
-`edge-dns` control plane is stood up for **`archlens.dev`**.
+Project `edge-dns` with stacks per domain. Zone lifecycle only; product DNS/Pages stay in product repos.
 
-| Item | State |
-|------|--------|
-| Repo | [mzworthington/edge-dns](https://github.com/mzworthington/edge-dns) |
-| Docs | README, ownership, add-zone, add-product-dns, decisions, baseline snapshot |
-| Pulumi | `mzworthington/edge-dns-archlens-dev/prod` — zone imported; preview clean |
-| CI | `preview.yml` + `apply.yml` (gated on `pulumi-prod`) |
-| Secrets | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `PULUMI_ACCESS_TOKEN` |
+| Stack | Zone |
+|-------|------|
+| `archlens.dev` | ArchLens |
+| `matthewworthington.com` | Personal |
+| `mzworthington.com` | Personal |
+| `mzworthington.co.uk` | Personal |
 
-## Ownership (locked)
+## Ops
 
-- **edge-dns:** zone create/import, nameservers, optional zone settings
-- **Product repos:** Pages/Workers/R2 + DNS (including apex when the product owns it)
+- Inventory: `zones.txt`
+- CI: matrix preview/apply; Environment `pulumi-prod` with required reviewer
+- Secrets: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `PULUMI_ACCESS_TOKEN`
+- `manageSettings` remains false until the token has Zone Settings Read/Write
 
-## Deferred (intentionally)
+## Deferred
 
-- Enable `manageSettings` once a token has Zone Settings Read/Write
-- `mzworthington.co.uk` as second zone
-- Product-repo docs (`docs/dns.md` in ArchLens/template) noting zone ownership here
-- Zero Trust / shared rulesets
-- Narrow product tokens / Cloudflare OIDC
-
-## Operator notes
-
-- Local config: `zones/archlens.dev` + gitignored `.env`
-- Baseline settings default off (`manageSettings=false`) because the current product Cloudflare token cannot read zone settings (API 9109)
-- After first push to `main`, add required reviewers on Environment **pulumi-prod** if the API did not attach them
-- Protect `main`: require PR + status checks for Pulumi preview
+- Enabling zone-setting baselines
+- Further product-repo DNS doc updates beyond ArchLens `docs/dns.md`

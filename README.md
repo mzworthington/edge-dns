@@ -2,33 +2,44 @@
 
 Org Cloudflare **control plane**: zones, nameservers, DNSSEC, and shared zone baselines (TLS/WAF defaults).
 
-Product repos (ArchLens, templates, etc.) own Pages/Workers/R2 and the DNS records for their hostnames — including apex when the product owns that domain (for example `archlens.dev` + `www.archlens.dev` in the ArchLens/blueprint stack). This repo does **not** create product Pages projects or product DNS records.
+Product repos own Pages/Workers/R2 and DNS for their hostnames (including apex when the product owns that domain). This repo does **not** create product Pages projects or product DNS records.
 
-Zones must exist here (Active) before a product attaches hostnames. See [docs/ownership.md](docs/ownership.md), [docs/add-zone.md](docs/add-zone.md), and [docs/add-product-dns.md](docs/add-product-dns.md). Stack choice: [docs/decisions.md](docs/decisions.md).
+See [docs/ownership.md](docs/ownership.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
 
 ## Layout
 
 ```text
-components/zone/     # reusable Zone + baseline settings
-zones/<domain>/      # one Pulumi project per zone
-docs/                # ownership and runbooks
+components/zone/     # ManagedZone ComponentResource
+index.ts             # one program; stack name = domain
+zones.txt            # inventory of managed zones
+docs/baselines/      # per-zone snapshots
 ```
 
-## First zone
+## Stacks (one per zone)
 
-`zones/archlens.dev` — zone lifecycle and baselines only. Product DNS/Pages stay in the ArchLens repo.
+| Stack (domain) | Notes |
+|----------------|--------|
+| `archlens.dev` | ArchLens product zone |
+| `matthewworthington.com` | Personal |
+| `mzworthington.com` | Personal |
+| `mzworthington.co.uk` | Personal / blog |
+
+Fully qualified: `mzworthington/edge-dns/<domain>`.
 
 ## Local
 
 ```bash
-cd zones/archlens.dev
 pnpm install
-pulumi stack select prod   # or init
-# set accountId, zoneName, zoneId, cloudflare:apiToken (see Pulumi.prod.yaml.example)
+pulumi stack select archlens.dev   # or init
+pulumi config set accountId …
+pulumi config set zoneName archlens.dev
+pulumi config set --secret cloudflare:apiToken …
 pulumi preview
 ```
 
+Zone settings baselines are off by default (`manageSettings=false`) until the API token has Zone Settings Read/Write. See [docs/baselines/](docs/baselines/).
+
 ## CI
 
-- PR / push: Pulumi preview
-- `main`: gated `pulumi up` via GitHub Environment `pulumi-prod`
+- PR / push: Pulumi **preview** for every stack in the matrix
+- `main`: gated **apply** via GitHub Environment `pulumi-prod` (required reviewer)

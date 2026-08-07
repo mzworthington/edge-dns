@@ -1,7 +1,6 @@
 # Dependencies
 node_modules/
 .pnpm-store/
-zones/**/node_modules/
 components/**/node_modules/
 
 # Builds
@@ -28,6 +27,6 @@ pnpm-debug.log*
 
 # Pulumi
 .pulumi/
-**/Pulumi.*.yaml
-!**/Pulumi.yaml
-!**/Pulumi.prod.yaml.example
+Pulumi.*.yaml
+!Pulumi.yaml
+!Pulumi.stack.yaml.example

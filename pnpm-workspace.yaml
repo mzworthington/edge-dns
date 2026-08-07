@@ -1,6 +1,6 @@
 packages:
+  - '.'
   - 'components/*'
-  - 'zones/*'
 
 allowBuilds:
   protobufjs: true

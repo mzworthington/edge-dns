@@ -1,0 +1,15 @@
+# Stacks are named after the zone (e.g. archlens.dev). Config is set per stack in CI / locally.
+# Example (do not commit real tokens):
+#
+#   pulumi stack init archlens.dev
+#   pulumi config set accountId <id>
+#   pulumi config set zoneName archlens.dev
+#   pulumi config set manageSettings false
+#   pulumi config set --secret cloudflare:apiToken <token>
+#
+# Optional when manageSettings=true:
+#   pulumi config set ssl full
+#   pulumi config set alwaysUseHttps on
+#   pulumi config set minTlsVersion 1.2
+#   pulumi config set automaticHttpsRewrites on
+#   pulumi config set tls13 on
