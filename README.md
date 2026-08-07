@@ -41,8 +41,11 @@ Zone settings baselines are off by default (`manageSettings=false`) until the AP
 
 ## CI
 
-- PR / push: Pulumi **preview** for every stack in the matrix
-- `main`: gated **apply** via GitHub Environment `pulumi-prod` (required reviewer)
+Single workflow [`.github/workflows/pulumi.yml`](.github/workflows/pulumi.yml):
+
+1. **Preview** — every branch (PR + push), all stacks in the matrix
+2. **Manual gate** — GitHub Environment `pulumi-prod` (required reviewers)
+3. **Apply** — `main` only, after preview succeeds and the environment is approved
 
 ### Reusable: Pulumi rich report
 

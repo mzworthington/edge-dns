@@ -1,10 +1,10 @@
-name: Pulumi apply
+name: Pulumi
 
-# Apply on main only. Environment "pulumi-prod" should require reviewers.
+# Flow: preview (all branches) → GitHub Environment approval on apply → pulumi up (main only).
+# Create Environment "pulumi-prod" with required reviewers for the manual gate.
 
 on:
-  push:
-    branches: [main]
+  pull_request:
     paths:
       - 'index.ts'
       - 'Pulumi.yaml'
@@ -12,11 +12,26 @@ on:
       - 'pnpm-lock.yaml'
       - 'zones.txt'
       - 'components/**'
-      - '.github/workflows/apply.yml'
+      - '.github/workflows/pulumi.yml'
+      - '.github/actions/setup-edge-dns-pulumi/**'
+      - '.github/actions/pulumi-rich-report/**'
+  push:
+    paths:
+      - 'index.ts'
+      - 'Pulumi.yaml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'zones.txt'
+      - 'components/**'
+      - '.github/workflows/pulumi.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
       - '.github/actions/pulumi-rich-report/**'
   workflow_dispatch:
     inputs:
+      apply:
+        description: After preview, wait for pulumi-prod approval then run pulumi up (main only)
+        type: boolean
+        default: true
       stack:
         description: Zone stack to apply (domain). Empty = all zones in matrix.
         required: false
@@ -24,15 +39,61 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
   deployments: write
 
 concurrency:
-  group: edge-dns-prod-apply
+  group: edge-dns-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  preview:
+    name: Preview (${{ matrix.stack }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        stack:
+          - archlens.dev
+          - matthewworthington.com
+          - mzworthington.com
+          - mzworthington.co.uk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup edge-dns Pulumi
+        uses: ./.github/actions/setup-edge-dns-pulumi
+        with:
+          stack: ${{ matrix.stack }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          EDGE_DNS_MANAGE_SETTINGS: ${{ vars.EDGE_DNS_MANAGE_SETTINGS }}
+          EDGE_DNS_SSL: ${{ vars.EDGE_DNS_SSL }}
+          EDGE_DNS_ALWAYS_USE_HTTPS: ${{ vars.EDGE_DNS_ALWAYS_USE_HTTPS }}
+          EDGE_DNS_MIN_TLS_VERSION: ${{ vars.EDGE_DNS_MIN_TLS_VERSION }}
+          EDGE_DNS_AUTOMATIC_HTTPS_REWRITES: ${{ vars.EDGE_DNS_AUTOMATIC_HTTPS_REWRITES }}
+          EDGE_DNS_TLS13: ${{ vars.EDGE_DNS_TLS13 }}
+
+      - name: Pulumi preview
+        uses: ./.github/actions/pulumi-rich-report
+        with:
+          command: preview
+          stack-name: ${{ matrix.stack }}
+          work-dir: .
+          comment-on-pr: ${{ github.event_name == 'pull_request' }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
   apply:
     name: Apply (${{ matrix.stack }})
+    if: >
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.apply))
+    needs: [preview]
     runs-on: ubuntu-latest
     environment:
       name: pulumi-prod
