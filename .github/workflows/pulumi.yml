@@ -15,6 +15,7 @@ on:
       - '.github/workflows/pulumi.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
       - '.github/actions/pulumi-rich-report/**'
+      - '.github/actions/setup-pulumi-cloudflare/**'
   push:
     paths:
       - 'index.ts'
@@ -26,6 +27,7 @@ on:
       - '.github/workflows/pulumi.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
       - '.github/actions/pulumi-rich-report/**'
+      - '.github/actions/setup-pulumi-cloudflare/**'
   workflow_dispatch:
     inputs:
       apply:

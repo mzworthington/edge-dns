@@ -1,18 +1,22 @@
 # edge-dns
 
-Org Cloudflare **control plane**: zones, nameservers, DNSSEC, and shared zone baselines (TLS/WAF defaults).
+Org Cloudflare **control plane**: zones, nameservers, DNSSEC, and shared zone baselines (TLS/WAF defaults). Also the **home** for shared Cloudflare GitHub Actions and product bootstrap scripts.
 
-Product repos own Pages/Workers/R2 and DNS for their hostnames (including apex when the product owns that domain). This repo does **not** create product Pages projects or product DNS records.
+Product repos own Pages/Workers/R2 and DNS for their hostnames (including apex when the product owns that domain). This repo does **not** create product Pages projects or product DNS records — but product CI should call the reusable Actions/workflows here instead of copying them.
 
-See [docs/ownership.md](docs/ownership.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
+See [docs/ownership.md](docs/ownership.md), [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
 
 ## Layout
 
 ```text
-components/zone/     # ManagedZone ComponentResource
-index.ts             # one program; stack name = domain
-zones.txt            # inventory of managed zones
-docs/baselines/      # per-zone snapshots
+components/zone/              # ManagedZone ComponentResource
+index.ts                      # one program; stack name = domain
+zones.txt                     # inventory of managed zones
+docs/baselines/               # per-zone snapshots
+.github/actions/              # reusable composite actions (zones + products)
+.github/workflows/            # edge-dns CI + reusable product Pulumi workflow
+scripts/setup-cloudflare-hosting.sh
+examples/product-cloudflare/  # thin shims to copy into product repos
 ```
 
 ## Stacks (one per zone)
@@ -39,7 +43,7 @@ pulumi preview
 
 Zone settings baselines are off by default (`manageSettings=false`) until the API token has Zone Settings Read/Write. See [docs/baselines/](docs/baselines/).
 
-## CI
+## CI (this repo)
 
 Single workflow [`.github/workflows/pulumi.yml`](.github/workflows/pulumi.yml):
 
@@ -47,17 +51,45 @@ Single workflow [`.github/workflows/pulumi.yml`](.github/workflows/pulumi.yml):
 2. **Manual gate** — GitHub Environment `pulumi-prod` (required reviewers)
 3. **Apply** — `main` only, after preview succeeds and the environment is approved
 
-### Reusable: Pulumi rich report
+## Shared Cloudflare tooling (product repos)
 
-[`.github/actions/pulumi-rich-report`](.github/actions/pulumi-rich-report) wraps `pulumi/actions` with per-resource diffs, job summary, optional PR comments, and Pulumi Cloud dashboard links.
-
-Product repos can call it after their own setup step:
+Prefer the reusable workflow + bootstrap shim. Details: [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md). Copy-paste starters: [examples/product-cloudflare/](examples/product-cloudflare/).
 
 ```yaml
-- name: Pulumi preview
-  uses: mzworthington/edge-dns/.github/actions/pulumi-rich-report@main
+# product repo: .github/workflows/pulumi-cloudflare.yml
+jobs:
+  pulumi:
+    uses: mzworthington/edge-dns/.github/workflows/product-pulumi-cloudflare.yml@main
+    with:
+      work-dir: infra/cloudflare
+      stack-name: prod
+      tooling-ref: main
+    secrets: inherit
+```
+
+Or call the composite actions directly:
+
+| Action | Use |
+|--------|-----|
+| [`setup-pulumi-cloudflare`](.github/actions/setup-pulumi-cloudflare) | Node/pnpm + product stack config |
+| [`pulumi-rich-report`](.github/actions/pulumi-rich-report) | preview/up with diffs + Pulumi Cloud links |
+
+```yaml
+- uses: mzworthington/edge-dns/.github/actions/setup-pulumi-cloudflare@main
   with:
-    command: preview          # or up
+    work-dir: infra/cloudflare
+    stack-name: prod
+  env:
+    PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+    CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+    CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    PULUMI_PAGES_PROJECT_NAME: ${{ vars.PULUMI_PAGES_PROJECT_NAME }}
+    PULUMI_PAGES_HOSTNAMES: ${{ vars.PULUMI_PAGES_HOSTNAMES }}
+
+- uses: mzworthington/edge-dns/.github/actions/pulumi-rich-report@main
+  with:
+    command: preview
     stack-name: prod
     work-dir: infra/cloudflare
     comment-on-pr: ${{ github.event_name == 'pull_request' }}
@@ -65,4 +97,4 @@ Product repos can call it after their own setup step:
     PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 ```
 
-Pin to a commit SHA instead of `@main` when you want a frozen consumer.
+Pin workflow/`tooling-ref` (or action refs) to a commit SHA for a frozen consumer.

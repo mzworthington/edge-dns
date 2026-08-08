@@ -18,7 +18,12 @@ Project `edge-dns` with stacks per domain. Zone lifecycle only; product DNS/Page
 - Secrets: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `PULUMI_ACCESS_TOKEN`
 - `manageSettings` remains false until the token has Zone Settings Read/Write
 
+## Shared tooling
+
+Reusable product Cloudflare Actions/workflow + `scripts/setup-cloudflare-hosting.sh` live here. Consumers: copy shims from `examples/product-cloudflare/`; see `docs/reusable-cloudflare-ci.md`.
+
 ## Deferred
 
 - Enabling zone-setting baselines
+- Migrating ArchLens / react-cloudflare-template off local Action copies onto the shims here
 - Further product-repo DNS doc updates beyond ArchLens `docs/dns.md`

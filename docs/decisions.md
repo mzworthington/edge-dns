@@ -17,3 +17,13 @@
 ## Ownership split
 
 **Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, and shared zone settings. Product repos own Pages/Workers/R2 and DNS records for their hostnames (apex or subdomain).
+
+**Why:** Keeps zone blast radius and org baselines in one place; product deploys stay with the product.
+
+## Shared Cloudflare CI / bootstrap home
+
+**Chosen:** Reusable GitHub Actions, the product Pulumi workflow, and `scripts/setup-cloudflare-hosting.sh` live in `edge-dns`. Product repos keep thin callers/shims only ([examples/product-cloudflare/](../examples/product-cloudflare/)).
+
+**Why:** ArchLens and `react-cloudflare-template` already duplicated setup actions, workflows, and bootstrap scripts. One home avoids drift; resource ownership stays split as above.
+
+**Not chosen:** A separate `cloudflare-tooling` repo (extra indirection for the same consumers); vendoring full copies into every product repo.
