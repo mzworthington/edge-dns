@@ -1,6 +1,8 @@
 import * as cloudflare from '@pulumi/cloudflare';
 import * as pulumi from '@pulumi/pulumi';
 
+export { CanonicalRedirect, type CanonicalRedirectArgs } from './canonical-redirect';
+
 export interface ZoneBaselineSetting {
   /** Cloudflare setting id (snake_case), e.g. `always_use_https`. */
   settingId: string;
@@ -22,7 +24,8 @@ export interface ManagedZoneArgs {
 
 /**
  * Cloudflare zone plus optional baseline settings.
- * Product DNS / Pages stay in product repos — do not add DnsRecord here.
+ * Product DNS / Pages stay in product repos. Org vanity redirects use
+ * {@link CanonicalRedirect} (DNS stubs + Single Redirect ruleset).
  */
 export class ManagedZone extends pulumi.ComponentResource {
   public readonly zone: cloudflare.Zone;

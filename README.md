@@ -4,13 +4,14 @@ Org Cloudflare **control plane**: zones, nameservers, DNSSEC, and shared zone ba
 
 Product repos own Pages/Workers/R2 and DNS for their hostnames (including apex when the product owns that domain). This repo does **not** create product Pages projects or product DNS records — but product CI should call the reusable Actions/workflows here instead of copying them.
 
-See [docs/ownership.md](docs/ownership.md), [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
+See [docs/ownership.md](docs/ownership.md), [docs/org-redirects.md](docs/org-redirects.md), [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
 
 ## Layout
 
 ```text
-components/zone/              # ManagedZone ComponentResource
+components/zone/              # ManagedZone + CanonicalRedirect
 index.ts                      # one program; stack name = domain
+org-redirects.ts              # vanity zone → canonical host map
 zones.txt                     # inventory of managed zones
 docs/baselines/               # per-zone snapshots
 .github/actions/              # reusable composite actions (zones + products)
@@ -24,9 +25,9 @@ examples/product-cloudflare/  # thin shims to copy into product repos
 | Stack (domain) | Notes |
 |----------------|--------|
 | `archlens.dev` | ArchLens product zone |
-| `matthewworthington.com` | Personal |
-| `mzworthington.com` | Personal |
-| `mzworthington.co.uk` | Personal / blog |
+| `matthewworthington.com` | Vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
+| `mzworthington.com` | Vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
+| `mzworthington.co.uk` | Personal / blog (product DNS/Pages in mzworthington repo) |
 
 Fully qualified: `mzworthington/edge-dns/<domain>`.
 

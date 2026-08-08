@@ -8,4 +8,4 @@
 | Name servers | `lauryn.ns.cloudflare.com`, `tosana.ns.cloudflare.com` |
 | Pulumi | `mzworthington/edge-dns/matthewworthington.com` |
 
-Managed: `cloudflare.Zone` only (`manageSettings=false`).
+Managed: `cloudflare.Zone` (`manageSettings=false`) plus org vanity **CanonicalRedirect** → `mzworthington.co.uk` ([org-redirects.md](../org-redirects.md)).

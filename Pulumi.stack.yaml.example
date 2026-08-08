@@ -13,3 +13,6 @@
 #   pulumi config set minTlsVersion 1.2
 #   pulumi config set automaticHttpsRewrites on
 #   pulumi config set tls13 on
+#
+# Optional org vanity redirect (usually set via org-redirects.ts instead):
+#   pulumi config set canonicalRedirectTo mzworthington.co.uk

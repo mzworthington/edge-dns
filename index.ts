@@ -1,5 +1,6 @@
 import * as pulumi from '@pulumi/pulumi';
-import { ManagedZone, type ZoneBaselineSetting } from '@edge-dns/zone';
+import { CanonicalRedirect, ManagedZone, type ZoneBaselineSetting } from '@edge-dns/zone';
+import { ORG_CANONICAL_REDIRECTS } from './org-redirects';
 
 const config = new pulumi.Config();
 const accountId = config.require('accountId');
@@ -19,6 +20,10 @@ const zoneSlug = zoneName.replace(/\./g, '-');
  * Default false: product tokens often have DNS/Pages only; zone import still works.
  */
 const manageSettings = config.getBoolean('manageSettings') ?? false;
+
+/** Optional override; otherwise {@link ORG_CANONICAL_REDIRECTS} for this zoneName. */
+const canonicalRedirectTo =
+  config.get('canonicalRedirectTo') ?? ORG_CANONICAL_REDIRECTS[zoneName];
 
 const baselineSettings: ZoneBaselineSetting[] = manageSettings
   ? [
@@ -40,7 +45,21 @@ const managed = new ManagedZone(zoneSlug, {
   settings: baselineSettings,
 });
 
+const redirect = canonicalRedirectTo
+  ? new CanonicalRedirect(
+      `${zoneSlug}-canonical`,
+      {
+        zoneId: managed.zoneId,
+        zoneName,
+        targetHost: canonicalRedirectTo,
+      },
+      { parent: managed },
+    )
+  : undefined;
+
 export const zoneId = managed.zoneId;
 export const zoneNameOut = zoneName;
 export const nameServers = managed.nameServers;
 export const manageSettingsOut = manageSettings;
+export const canonicalRedirectToOut = canonicalRedirectTo ?? null;
+export const canonicalRedirectRulesetId = redirect ? redirect.ruleset.id : null;

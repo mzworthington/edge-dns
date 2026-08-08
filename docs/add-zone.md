@@ -11,4 +11,5 @@
 
 - Zone Read + Write for managed zones
 - Zone Settings Read/Write only if `manageSettings=true`
+- Zone DNS Edit + Zone Single Redirect Edit when the zone is listed in [`org-redirects.ts`](../org-redirects.ts) (see [org-redirects.md](org-redirects.md))
 - Pages Edit is **not** required here

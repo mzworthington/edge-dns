@@ -16,6 +16,6 @@ Before starting work, read:
 
 ## Project notes
 
-- This repo owns **zones and baselines**, plus **shared Cloudflare CI/bootstrap tooling** for product repos (Actions, reusable workflow, `scripts/setup-cloudflare-hosting.sh`). It does **not** own product Pages/DNS resources.
+- This repo owns **zones and baselines**, **org vanity redirects** ([docs/org-redirects.md](docs/org-redirects.md)), plus **shared Cloudflare CI/bootstrap tooling** for product repos (Actions, reusable workflow, `scripts/setup-cloudflare-hosting.sh`). It does **not** own product Pages/DNS resources.
 - Product consumers: [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md), [examples/product-cloudflare/](examples/product-cloudflare/).
 - Before handover: `pnpm install && pnpm typecheck && pulumi preview` (with stack selected).

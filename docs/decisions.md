@@ -16,9 +16,9 @@
 
 ## Ownership split
 
-**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, and shared zone settings. Product repos own Pages/Workers/R2 and DNS records for their hostnames (apex or subdomain).
+**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, shared zone settings, and **org vanity redirects** (proxied DNS stubs + Single Redirect rulesets via `org-redirects.ts`). Product repos own Pages/Workers/R2 and DNS records for their hostnames (apex or subdomain).
 
-**Why:** Keeps zone blast radius and org baselines in one place; product deploys stay with the product.
+**Why:** Keeps zone blast radius and org baselines in one place; product deploys stay with the product. Vanity aliases are not product apps — they belong with zone control plane.
 
 ## Shared Cloudflare CI / bootstrap home
 
