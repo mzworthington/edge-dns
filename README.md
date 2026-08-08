@@ -11,23 +11,26 @@ See [docs/ownership.md](docs/ownership.md), [docs/org-redirects.md](docs/org-red
 ```text
 components/zone/              # ManagedZone + CanonicalRedirect
 index.ts                      # one program; stack name = domain
-org-redirects.ts              # vanity zone → canonical host map
-zones.txt                     # inventory of managed zones
+zones.yaml                    # inventory: zones, roles, vanity redirects (CI matrix)
+zones.ts                      # load/validate zones.yaml for Pulumi
 docs/baselines/               # per-zone snapshots
 .github/actions/              # reusable composite actions (zones + products)
 .github/workflows/            # edge-dns CI + reusable product Pulumi workflow
 scripts/setup-cloudflare-hosting.sh
+scripts/zones-matrix.cjs      # emit stack list JSON from zones.yaml
 examples/product-cloudflare/  # thin shims to copy into product repos
 ```
 
 ## Stacks (one per zone)
 
-| Stack (domain) | Notes |
-|----------------|--------|
-| `archlens.dev` | ArchLens product zone |
-| `matthewworthington.com` | Vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
-| `mzworthington.com` | Vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
-| `mzworthington.co.uk` | Personal / blog (product DNS/Pages in mzworthington repo) |
+Declared in [`zones.yaml`](zones.yaml) (source of truth). Summary:
+
+| Stack (domain) | Role |
+|----------------|------|
+| `archlens.dev` | product — ArchLens |
+| `matthewworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
+| `mzworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
+| `mzworthington.co.uk` | product — personal / blog (DNS/Pages in mzworthington repo) |
 
 Fully qualified: `mzworthington/edge-dns/<domain>`.
 
@@ -48,9 +51,10 @@ Zone settings baselines are off by default (`manageSettings=false`) until the AP
 
 Single workflow [`.github/workflows/pulumi.yml`](.github/workflows/pulumi.yml):
 
-1. **Preview** — every branch (PR + push), all stacks in the matrix
-2. **Manual gate** — GitHub Environment `pulumi-prod` (required reviewers)
-3. **Apply** — `main` only, after preview succeeds and the environment is approved
+1. **Matrix** — stack list from [`zones.yaml`](zones.yaml) via `scripts/zones-matrix.cjs`
+2. **Preview** — every branch (PR + push), all stacks in that matrix
+3. **Manual gate** — GitHub Environment `pulumi-prod` (required reviewers)
+4. **Apply** — `main` only, after preview succeeds and the environment is approved
 
 ## Shared Cloudflare tooling (product repos)
 

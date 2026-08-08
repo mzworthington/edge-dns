@@ -1,5 +1,0 @@
-# Managed Cloudflare zones (one Pulumi stack per line; stack name = domain).
-archlens.dev
-matthewworthington.com
-mzworthington.com
-mzworthington.co.uk

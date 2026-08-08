@@ -13,7 +13,7 @@ Project `edge-dns` with stacks per domain. Zone lifecycle only; product DNS/Page
 
 ## Ops
 
-- Inventory: `zones.txt`
+- Inventory: `zones.yaml` (zones, roles, vanity redirects; drives CI matrix)
 - CI: matrix preview/apply; Environment `pulumi-prod` with required reviewer
 - Secrets: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `PULUMI_ACCESS_TOKEN`
 - `manageSettings` remains false until the token has Zone Settings Read/Write

@@ -2,16 +2,18 @@ name: Pulumi
 
 # Flow: preview (all branches) → GitHub Environment approval on apply → pulumi up (main only).
 # Create Environment "pulumi-prod" with required reviewers for the manual gate.
+# Stack matrix is generated from zones.yaml (single source of truth).
 
 on:
   pull_request:
     paths:
       - 'index.ts'
-      - 'org-redirects.ts'
+      - 'zones.ts'
+      - 'zones.yaml'
+      - 'scripts/zones-matrix.cjs'
       - 'Pulumi.yaml'
       - 'package.json'
       - 'pnpm-lock.yaml'
-      - 'zones.txt'
       - 'components/**'
       - '.github/workflows/pulumi.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
@@ -20,11 +22,12 @@ on:
   push:
     paths:
       - 'index.ts'
-      - 'org-redirects.ts'
+      - 'zones.ts'
+      - 'zones.yaml'
+      - 'scripts/zones-matrix.cjs'
       - 'Pulumi.yaml'
       - 'package.json'
       - 'pnpm-lock.yaml'
-      - 'zones.txt'
       - 'components/**'
       - '.github/workflows/pulumi.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
@@ -51,17 +54,47 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  matrix:
+    name: Zone matrix
+    runs-on: ubuntu-latest
+    outputs:
+      stacks: ${{ steps.zones.outputs.stacks }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.20.0
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        shell: bash
+        run: pnpm install --frozen-lockfile
+
+      - name: Emit stacks from zones.yaml
+        id: zones
+        shell: bash
+        run: |
+          STACKS="$(node scripts/zones-matrix.cjs)"
+          echo "stacks=${STACKS}" >> "$GITHUB_OUTPUT"
+
   preview:
     name: Preview (${{ matrix.stack }})
+    needs: [matrix]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        stack:
-          - archlens.dev
-          - matthewworthington.com
-          - mzworthington.com
-          - mzworthington.co.uk
+        stack: ${{ fromJson(needs.matrix.outputs.stacks) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -97,18 +130,14 @@ jobs:
       github.ref == 'refs/heads/main' &&
       (github.event_name == 'push' ||
        (github.event_name == 'workflow_dispatch' && inputs.apply))
-    needs: [preview]
+    needs: [matrix, preview]
     runs-on: ubuntu-latest
     environment:
       name: pulumi-prod
     strategy:
       fail-fast: false
       matrix:
-        stack:
-          - archlens.dev
-          - matthewworthington.com
-          - mzworthington.com
-          - mzworthington.co.uk
+        stack: ${{ fromJson(needs.matrix.outputs.stacks) }}
     steps:
       - name: Maybe skip stack
         id: gate

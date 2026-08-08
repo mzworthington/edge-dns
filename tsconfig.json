@@ -9,5 +9,5 @@
     "outDir": "bin",
     "types": ["node"]
   },
-  "include": ["index.ts", "org-redirects.ts"]
+  "include": ["index.ts", "zones.ts"]
 }

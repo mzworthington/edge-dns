@@ -1,6 +1,6 @@
 import * as pulumi from '@pulumi/pulumi';
 import { CanonicalRedirect, ManagedZone, type ZoneBaselineSetting } from '@edge-dns/zone';
-import { ORG_CANONICAL_REDIRECTS } from './org-redirects';
+import { inventoryCanonicalRedirectTo } from './zones';
 
 const config = new pulumi.Config();
 const accountId = config.require('accountId');
@@ -21,9 +21,9 @@ const zoneSlug = zoneName.replace(/\./g, '-');
  */
 const manageSettings = config.getBoolean('manageSettings') ?? false;
 
-/** Optional override; otherwise {@link ORG_CANONICAL_REDIRECTS} for this zoneName. */
+/** Optional override; otherwise vanity `redirectTo` from zones.yaml for this zoneName. */
 const canonicalRedirectTo =
-  config.get('canonicalRedirectTo') ?? ORG_CANONICAL_REDIRECTS[zoneName];
+  config.get('canonicalRedirectTo') ?? inventoryCanonicalRedirectTo(zoneName);
 
 const baselineSettings: ZoneBaselineSetting[] = manageSettings
   ? [
