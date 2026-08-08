@@ -1,0 +1,22 @@
+# Managed Cloudflare zones — single source of truth.
+# One Pulumi stack per zone; stack name = domain key.
+#
+# role: product — zone lifecycle/baselines here; product DNS/Pages elsewhere
+# role: vanity  — org redirect only; requires redirectTo (canonical host, no scheme)
+
+zones:
+  archlens.dev:
+    role: product
+    notes: ArchLens product zone
+
+  matthewworthington.com:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  mzworthington.com:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  mzworthington.co.uk:
+    role: product
+    notes: Personal / blog (product DNS/Pages in mzworthington repo)

@@ -16,9 +16,17 @@
 
 ## Ownership split
 
-**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, shared zone settings, and **org vanity redirects** (proxied DNS stubs + Single Redirect rulesets via `org-redirects.ts`). Product repos own Pages/Workers/R2 and DNS records for their hostnames (apex or subdomain).
+**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, shared zone settings, and **org vanity redirects** (proxied DNS stubs + Single Redirect rulesets via `zones.yaml` + `CanonicalRedirect`). Product repos own Pages/Workers/R2 and DNS records for their hostnames (apex or subdomain).
 
 **Why:** Keeps zone blast radius and org baselines in one place; product deploys stay with the product. Vanity aliases are not product apps — they belong with zone control plane.
+
+## Zone inventory: `zones.yaml`
+
+**Chosen:** One YAML inventory ([`zones.yaml`](../zones.yaml)) lists every managed zone, its role (`product` | `vanity`), and vanity `redirectTo`. Pulumi reads redirects from it; CI builds the stack matrix from it (`scripts/zones-matrix.cjs`).
+
+**Why:** Replaces a flat `zones.txt`, a separate `org-redirects.ts` map, and duplicated workflow matrices — one file describes what the repo manages.
+
+**Not chosen:** Encoding inventory only in TypeScript (harder to scan); putting org inventory in per-stack `Pulumi.<stack>.yaml` (secrets/config, wrong layer).
 
 ## Shared Cloudflare CI / bootstrap home
 

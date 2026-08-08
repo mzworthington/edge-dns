@@ -14,5 +14,5 @@
 #   pulumi config set automaticHttpsRewrites on
 #   pulumi config set tls13 on
 #
-# Optional org vanity redirect (usually set via org-redirects.ts instead):
+# Optional org vanity redirect (usually set via zones.yaml role: vanity instead):
 #   pulumi config set canonicalRedirectTo mzworthington.co.uk

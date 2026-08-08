@@ -4,14 +4,17 @@
   "packageManager": "pnpm@11.20.0",
   "main": "index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "zones-matrix": "node scripts/zones-matrix.cjs"
   },
   "dependencies": {
     "@edge-dns/zone": "workspace:*",
     "@pulumi/cloudflare": "6.19.0",
-    "@pulumi/pulumi": "3.256.0"
+    "@pulumi/pulumi": "3.256.0",
+    "js-yaml": "4.3.1"
   },
   "devDependencies": {
+    "@types/js-yaml": "4.0.9",
     "@types/node": "22.19.1",
     "typescript": "5.9.3"
   }

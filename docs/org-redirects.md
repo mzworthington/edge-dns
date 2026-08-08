@@ -1,6 +1,6 @@
 # Org vanity redirects
 
-Vanity zones that only forward to a canonical host are declared in [`org-redirects.ts`](../org-redirects.ts) and applied by `CanonicalRedirect` in the matching zone stack.
+Vanity zones that only forward to a canonical host are declared in [`zones.yaml`](../zones.yaml) (`role: vanity` + `redirectTo`) and applied by `CanonicalRedirect` in the matching zone stack.
 
 | Source zone | Canonical host |
 |-------------|----------------|
@@ -14,7 +14,7 @@ Per vanity stack:
 1. Proxied `A` records for apex + `www` → `192.0.2.1` (sinkhole; traffic stays on Cloudflare)
 2. Zone Single Redirect ruleset (`http_request_dynamic_redirect`) — 301 to `https://<canonical><path>` with query string preserved
 
-Override with stack config if needed: `pulumi config set canonicalRedirectTo <host>`.
+Override with stack config if needed: `pulumi config set canonicalRedirectTo <host>` (takes precedence over `zones.yaml`).
 
 ## Before first apply
 
