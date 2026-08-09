@@ -23,7 +23,7 @@ examples/product-cloudflare/  # thin shims to copy into product repos
 
 ## Stacks (one per zone)
 
-Declared in [`zones.yaml`](zones.yaml) (source of truth). Summary:
+Declared in [`zones.yaml`](zones.yaml) (source of truth; CI matrix + vanity redirects). Bulk onboard: [`scripts/bootstrap-zones.sh`](scripts/bootstrap-zones.sh) ([add-zone.md](docs/add-zone.md)).
 
 | Stack (domain) | Role |
 |----------------|------|
@@ -31,6 +31,7 @@ Declared in [`zones.yaml`](zones.yaml) (source of truth). Summary:
 | `matthewworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.co.uk` | product — personal / blog (DNS/Pages in mzworthington repo) |
+| *(GoDaddy onboard)* | see `zones.yaml` (`siliconpanda.*` deferred — Workspace mail) |
 
 Fully qualified: `mzworthington/edge-dns/<domain>`.
 

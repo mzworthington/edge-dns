@@ -5,7 +5,7 @@ Products own hostname DNS and app edge resources. `edge-dns` only ensures the **
 ## Prerequisites
 
 1. Zone for the domain is managed in `edge-dns` and status is **Active**.
-2. Product Cloudflare API token includes at least: Zone DNS Edit, Zone Read, Cloudflare Pages Edit (as needed). Prefer scoping the token to that zone.
+2. Product Cloudflare API token includes at least: Zone DNS Edit, Zone Read, Cloudflare Pages Edit (as needed). Prefer scoping the token to that zone. For Cloudflare Tunnel product stacks (e.g. gpio-build-monitor), also grant **Account → Cloudflare Tunnel → Edit**.
 
 ## Steps (product repo)
 

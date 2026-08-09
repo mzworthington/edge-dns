@@ -19,4 +19,53 @@ zones:
 
   mzworthington.co.uk:
     role: product
-    notes: Personal / blog (product DNS/Pages in mzworthington repo)
+    notes: Personal / blog 
+
+  # --- GoDaddy onboarding (registrar stays at GoDaddy until NS cutover) ---
+  # Out of scope this batch: siliconpanda.com / .co.uk (Google Workspace mail) — see TODO below.
+
+  cloudymelon.com:
+    role: product
+    notes: Design publication- Middle East meets London 
+
+  deema.design:
+    role: product
+    notes: Personal / block / Portfolio 
+
+  ifinditreallygood.com:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  ifinditreallygood.co.uk:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  its-really-good.com:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  its-really-good.co.uk:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  matthewanddeema.com:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  really-good.club:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  really-good.co.uk:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  # TODO: Come in after bulk transfer
+  # siliconpanda.com:
+  #   role: product
+  #   notes: Google Workspace / email domain — preserve MX+auth TXT before NS cutover
+
+  # siliconpanda.co.uk:
+  #   role: vanity
+  #   redirectTo: mzworthington.co.uk
+  #   notes: GoDaddy onboard (likely vanity → siliconpanda.com once decided)
