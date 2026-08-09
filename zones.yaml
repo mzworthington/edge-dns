@@ -48,6 +48,7 @@ zones:
     role: vanity
     redirectTo: mzworthington.co.uk
 
+
   matthewanddeema.com:
     role: vanity
     redirectTo: mzworthington.co.uk
@@ -59,6 +60,16 @@ zones:
   really-good.co.uk:
     role: vanity
     redirectTo: mzworthington.co.uk
+
+  feed-replay.com:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+  feed-replay.co.uk:
+    role: vanity
+    redirectTo: mzworthington.co.uk
+
+    
 
   # TODO: Come in after bulk transfer
   # siliconpanda.com:
