@@ -8,6 +8,9 @@ name: Pulumi Cloudflare
 # Vars:    PULUMI_PAGES_PROJECT_NAME, PULUMI_PAGES_HOSTNAMES (JSON array)
 # Optional vars for ArchLens-shaped stacks:
 #   PULUMI_APEX_DOMAIN, PULUMI_WWW_DOMAIN, PULUMI_CATALOG_BUCKET_NAME, PULUMI_CATALOG_DOMAIN
+#
+# Dependabot/fork PRs do not receive Actions secrets; the reusable workflow skips
+# preview then. Mirror secrets as Dependabot secrets if you want real previews.
 
 on:
   pull_request:

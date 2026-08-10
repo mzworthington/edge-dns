@@ -21,6 +21,12 @@ Zone lifecycle stays in this repo ([ownership.md](ownership.md)). This page cove
 2. Create Environment **`pulumi-prod`** with required reviewers.
 3. Ensure secrets/vars exist (or run the bootstrap script below).
 
+### Dependabot / fork PRs
+
+GitHub does **not** pass Actions secrets to Dependabot or fork `pull_request` runs. The reusable workflow therefore keeps secrets optional: preview/apply **skip** when secrets are missing (so Dependabot infra bumps stay green), and **fail** on `main` push/dispatch if secrets are absent.
+
+To run real Pulumi previews on Dependabot PRs, mirror the same four values as [Dependabot secrets](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-encrypted-secrets-for-dependabot) (`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_API_TOKEN`).
+
 Pin both the workflow and `tooling-ref` to the same commit SHA when you want a frozen consumer:
 
 ```yaml

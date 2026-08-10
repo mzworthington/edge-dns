@@ -73,15 +73,18 @@ on:
         type: string
         required: false
         default: ''
+    # Optional so Dependabot / forks / fresh templates can call with
+    # `secrets: inherit` without failing at workflow evaluation time.
+    # Preview/apply skip when any secret is empty; main pushes fail loudly.
     secrets:
       PULUMI_ACCESS_TOKEN:
-        required: true
+        required: false
       CLOUDFLARE_ACCOUNT_ID:
-        required: true
+        required: false
       CLOUDFLARE_ZONE_ID:
-        required: true
+        required: false
       CLOUDFLARE_API_TOKEN:
-        required: true
+        required: false
 
 permissions:
   contents: read
@@ -93,8 +96,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Dependabot and fork PRs do not receive Actions secrets. Required secrets
+  # would fail the caller at evaluation ("Secret X is required, but not
+  # provided while calling"). Keep secrets optional and gate jobs instead.
+  secrets-ready:
+    name: Secrets
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ready=true
+          for name in PULUMI_ACCESS_TOKEN CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_ZONE_ID CLOUDFLARE_API_TOKEN; do
+            if [ -z "${!name}" ]; then
+              echo "::notice::$name is not available in this workflow run (common for Dependabot and fork PRs)."
+              ready=false
+            fi
+          done
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+          if [ "$ready" != true ]; then
+            if [ "${{ github.ref }}" = "refs/heads/main" ] && { [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; }; then
+              echo "::error::Pulumi Cloudflare secrets are required on main. Set repository (or Dependabot) secrets: PULUMI_ACCESS_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_TOKEN."
+              exit 1
+            fi
+            echo "::notice::Skipping Pulumi preview/apply — secrets not available."
+          fi
+
   preview:
     name: Preview
+    needs: [secrets-ready]
+    if: needs.secrets-ready.outputs.ready == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout product repo
@@ -144,8 +181,9 @@ jobs:
     name: Apply
     if: >
       inputs.apply &&
-      github.ref == 'refs/heads/main'
-    needs: [preview]
+      github.ref == 'refs/heads/main' &&
+      needs.secrets-ready.outputs.ready == 'true'
+    needs: [secrets-ready, preview]
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
