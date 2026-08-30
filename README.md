@@ -2,14 +2,14 @@
 
 Org Cloudflare **control plane**: zones, nameservers, DNSSEC, and shared zone baselines (TLS/WAF defaults). Also the **home** for shared Cloudflare GitHub Actions and product bootstrap scripts.
 
-Product repos own Pages/Workers/R2 and DNS for their hostnames (including apex when the product owns that domain). This repo does **not** create product Pages projects or product DNS records — but product CI should call the reusable Actions/workflows here instead of copying them.
+Product repos that publish on Cloudflare own Pages/Workers/R2 and DNS for their hostnames. This repo does **not** create Cloudflare Pages projects. **Exception:** when `githubPages` is set in [`zones.yaml`](zones.yaml), this repo owns apex/www DNS pointing at GitHub Pages ([github-pages-origin.md](docs/github-pages-origin.md)).
 
-See [docs/ownership.md](docs/ownership.md), [docs/org-redirects.md](docs/org-redirects.md), [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
+See [docs/ownership.md](docs/ownership.md), [docs/org-redirects.md](docs/org-redirects.md), [docs/github-pages-origin.md](docs/github-pages-origin.md), [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
 
 ## Layout
 
 ```text
-components/zone/              # ManagedZone + CanonicalRedirect
+components/zone/              # ManagedZone + CanonicalRedirect + GitHubPagesOrigin
 index.ts                      # one program; stack name = domain
 zones.yaml                    # inventory: zones, roles, vanity redirects (CI matrix)
 zones.ts                      # load/validate zones.yaml for Pulumi
@@ -28,6 +28,7 @@ Declared in [`zones.yaml`](zones.yaml) (source of truth; CI matrix + vanity redi
 | Stack (domain) | Role |
 |----------------|------|
 | `archlens.dev` | product — ArchLens |
+| `eval-driven-development.dev` | product — Agent Lifecycle Kit (GitHub Pages origin DNS here) |
 | `matthewworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.co.uk` | product — personal / blog (DNS/Pages in mzworthington repo) |

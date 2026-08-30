@@ -13,7 +13,9 @@ name: Product Pulumi Cloudflare
 #         tooling-ref: main   # pin to the same SHA as the workflow when freezing
 #         apply: ${{ github.event_name != 'workflow_dispatch' || inputs.apply }}
 #       secrets: inherit
-
+#
+# Create GitHub Environment "pulumi-prod" with required reviewers so the Approval
+# job waits between Preview and Apply.
 on:
   workflow_call:
     inputs:
@@ -177,8 +179,8 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
-  apply:
-    name: Apply
+  approval:
+    name: Approval
     if: >
       inputs.apply &&
       github.ref == 'refs/heads/main' &&
@@ -188,6 +190,19 @@ jobs:
     environment:
       name: ${{ inputs.environment }}
       url: ${{ inputs.environment-url }}
+    steps:
+      - name: Confirmed for apply
+        run: |
+          echo "Environment \`${{ inputs.environment }}\` approved — apply may proceed."
+
+  apply:
+    name: Apply
+    if: >
+      inputs.apply &&
+      github.ref == 'refs/heads/main' &&
+      needs.secrets-ready.outputs.ready == 'true'
+    needs: [secrets-ready, preview, approval]
+    runs-on: ubuntu-latest
     concurrency:
       group: ${{ inputs.apply-concurrency-group }}
       cancel-in-progress: false

@@ -11,7 +11,7 @@ Zone lifecycle stays in this repo ([ownership.md](ownership.md)). This page cove
 | [`.github/actions/pulumi-rich-report`](../.github/actions/pulumi-rich-report) | Preview/up with diffs, job summary, PR comments, Pulumi Cloud links |
 | [`.github/actions/setup-pulumi-cloudflare`](../.github/actions/setup-pulumi-cloudflare) | Product stack: Node/pnpm + `accountId` / `zoneId` / Pages config |
 | [`.github/actions/setup-edge-dns-pulumi`](../.github/actions/setup-edge-dns-pulumi) | This repo only: zone stack config |
-| [`.github/workflows/product-pulumi-cloudflare.yml`](../.github/workflows/product-pulumi-cloudflare.yml) | Reusable preview → Environment gate → apply |
+| [`.github/workflows/product-pulumi-cloudflare.yml`](../.github/workflows/product-pulumi-cloudflare.yml) | Reusable preview → **Approval** (Environment) → apply |
 | [`scripts/setup-cloudflare-hosting.sh`](../scripts/setup-cloudflare-hosting.sh) | Local bootstrap: secrets → GitHub → Pulumi config |
 | [`examples/product-cloudflare/`](../examples/product-cloudflare/) | Thin shims to copy into product repos |
 

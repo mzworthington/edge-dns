@@ -1,6 +1,6 @@
 # Attach product DNS / Pages
 
-Products own hostname DNS and app edge resources. `edge-dns` only ensures the **zone** exists.
+Products that publish on **Cloudflare** own hostname DNS and app edge resources. `edge-dns` ensures the **zone** exists. Sites that publish on **GitHub Pages** declare `githubPages` in [`zones.yaml`](../zones.yaml) so origin DNS lives here instead ([github-pages-origin.md](github-pages-origin.md)).
 
 ## Prerequisites
 
@@ -19,10 +19,12 @@ Products own hostname DNS and app edge resources. `edge-dns` only ensures the **
 ## Do not
 
 - Create a new Cloudflare zone from a product repo.
-- Move product DNS into `edge-dns` unless ownership explicitly changes.
+- Move product Cloudflare DNS into `edge-dns` unless ownership explicitly changes (GitHub Pages origin DNS is the documented exception).
 - Use an account-wide Zone Write token in product CI when a zone-scoped token suffices.
 - Copy/paste Cloudflare Actions or the full bootstrap script — consume them from this repo.
 
 ## Example
 
 ArchLens (`archlens.dev`): zone in `edge-dns`; Pages + apex/www DNS in blueprint `infra/cloudflare`.
+
+Agent Lifecycle Kit (`eval-driven-development.dev`): zone + GitHub Pages origin DNS in `edge-dns` (`githubPages` in [`zones.yaml`](../zones.yaml)). The kit repo only runs GitHub Actions Pages deploy — see [github-pages-origin.md](github-pages-origin.md).

@@ -16,13 +16,13 @@
 
 ## Ownership split
 
-**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, shared zone settings, and **org vanity redirects** (proxied DNS stubs + Single Redirect rulesets via `zones.yaml` + `CanonicalRedirect`). Product repos own Pages/Workers/R2 and DNS records for their hostnames (apex or subdomain).
+**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, shared zone settings, **org vanity redirects**, and **GitHub Pages origin DNS** when `githubPages` is set in [`zones.yaml`](../zones.yaml). Product repos that publish on Cloudflare own Pages/Workers/R2 and their hostname DNS.
 
-**Why:** Keeps zone blast radius and org baselines in one place; product deploys stay with the product. Vanity aliases are not product apps — they belong with zone control plane.
+**Why:** Keeps zone blast radius and org baselines in one place; product deploys stay with the product. Vanity aliases are not product apps — they belong with zone control plane. GitHub Pages sites have no Cloudflare product stack, so origin DNS would otherwise have nowhere to live.
 
 ## Zone inventory: `zones.yaml`
 
-**Chosen:** One YAML inventory ([`zones.yaml`](../zones.yaml)) lists every managed zone, its role (`product` | `vanity`), and vanity `redirectTo`. Pulumi reads redirects from it; CI builds the stack matrix from it (`scripts/zones-matrix.cjs`).
+**Chosen:** One YAML inventory ([`zones.yaml`](../zones.yaml)) lists every managed zone, its role (`product` | `vanity`), vanity `redirectTo`, and optional `githubPages` origin. Pulumi reads redirects and GitHub Pages DNS from it; CI builds the stack matrix from it (`scripts/zones-matrix.cjs`).
 
 **Why:** Replaces a flat `zones.txt`, a separate `org-redirects.ts` map, and duplicated workflow matrices — one file describes what the repo manages.
 

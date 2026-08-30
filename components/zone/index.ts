@@ -2,6 +2,12 @@ import * as cloudflare from '@pulumi/cloudflare';
 import * as pulumi from '@pulumi/pulumi';
 
 export { CanonicalRedirect, type CanonicalRedirectArgs } from './canonical-redirect';
+export {
+  GitHubPagesOrigin,
+  GITHUB_PAGES_IPV4,
+  GITHUB_PAGES_IPV6,
+  type GitHubPagesOriginArgs,
+} from './github-pages-origin';
 
 export interface ZoneBaselineSetting {
   /** Cloudflare setting id (snake_case), e.g. `always_use_https`. */
@@ -24,7 +30,8 @@ export interface ManagedZoneArgs {
 
 /**
  * Cloudflare zone plus optional baseline settings.
- * Product DNS / Pages stay in product repos. Org vanity redirects use
+ * Product DNS / Pages stay in product repos unless `githubPages` is set
+ * (GitHub Pages origin DNS lives here). Org vanity redirects use
  * {@link CanonicalRedirect} (DNS stubs + Single Redirect ruleset).
  */
 export class ManagedZone extends pulumi.ComponentResource {

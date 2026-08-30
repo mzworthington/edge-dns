@@ -1,6 +1,11 @@
 import * as pulumi from '@pulumi/pulumi';
-import { CanonicalRedirect, ManagedZone, type ZoneBaselineSetting } from '@edge-dns/zone';
-import { inventoryCanonicalRedirectTo } from './zones';
+import {
+  CanonicalRedirect,
+  GitHubPagesOrigin,
+  ManagedZone,
+  type ZoneBaselineSetting,
+} from '@edge-dns/zone';
+import { inventoryCanonicalRedirectTo, inventoryGithubPagesHost } from './zones';
 
 const config = new pulumi.Config();
 const accountId = config.require('accountId');
@@ -24,6 +29,15 @@ const manageSettings = config.getBoolean('manageSettings') ?? false;
 /** Optional override; otherwise vanity `redirectTo` from zones.yaml for this zoneName. */
 const canonicalRedirectTo =
   config.get('canonicalRedirectTo') ?? inventoryCanonicalRedirectTo(zoneName);
+
+/** Optional override; otherwise `githubPages` from zones.yaml for this zoneName. */
+const githubPagesHost = config.get('githubPagesHost') ?? inventoryGithubPagesHost(zoneName);
+
+if (canonicalRedirectTo && githubPagesHost) {
+  throw new Error(
+    `Zone ${zoneName} cannot be both a vanity redirect and a GitHub Pages origin`,
+  );
+}
 
 const baselineSettings: ZoneBaselineSetting[] = manageSettings
   ? [
@@ -57,9 +71,24 @@ const redirect = canonicalRedirectTo
     )
   : undefined;
 
+const githubPages = githubPagesHost
+  ? new GitHubPagesOrigin(
+      `${zoneSlug}-github-pages`,
+      {
+        zoneId: managed.zoneId,
+        zoneName,
+        githubIoHost: githubPagesHost,
+        challengeToken: config.get('githubPagesChallenge'),
+      },
+      { parent: managed },
+    )
+  : undefined;
+
 export const zoneId = managed.zoneId;
 export const zoneNameOut = zoneName;
 export const nameServers = managed.nameServers;
 export const manageSettingsOut = manageSettings;
 export const canonicalRedirectToOut = canonicalRedirectTo ?? null;
 export const canonicalRedirectRulesetId = redirect ? redirect.ruleset.id : null;
+export const githubPagesHostOut = githubPagesHost ?? null;
+export const githubPagesWwwCnameId = githubPages ? githubPages.wwwCname.id : null;

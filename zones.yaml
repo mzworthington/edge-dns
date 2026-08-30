@@ -2,12 +2,18 @@
 # One Pulumi stack per zone; stack name = domain key.
 #
 # role: product — zone lifecycle/baselines here; product DNS/Pages elsewhere
+#             unless githubPages is set (this repo owns GitHub Pages origin DNS)
 # role: vanity  — org redirect only; requires redirectTo (canonical host, no scheme)
 
 zones:
   archlens.dev:
     role: product
     notes: ArchLens product zone
+
+  eval-driven-development.dev:
+    role: product
+    githubPages: mzworthington.github.io
+    notes: Agent Lifecycle Kit / EDD site (GitHub Pages origin DNS in this repo)
 
   matthewworthington.com:
     role: vanity
