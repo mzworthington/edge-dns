@@ -10,7 +10,7 @@ on:
       - 'index.ts'
       - 'zones.ts'
       - 'zones.yaml'
-      - 'scripts/zones-matrix.cjs'
+      - 'scripts/**'
       - 'Pulumi.yaml'
       - 'package.json'
       - 'pnpm-lock.yaml'
@@ -24,7 +24,7 @@ on:
       - 'index.ts'
       - 'zones.ts'
       - 'zones.yaml'
-      - 'scripts/zones-matrix.cjs'
+      - 'scripts/**'
       - 'Pulumi.yaml'
       - 'package.json'
       - 'pnpm-lock.yaml'
@@ -79,6 +79,10 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: pnpm install --frozen-lockfile
+
+      - name: Unit tests
+        shell: bash
+        run: pnpm test
 
       - name: Emit stacks from zones.yaml
         id: zones

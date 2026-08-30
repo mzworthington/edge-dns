@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "node --test scripts/*.test.cjs",
     "zones-matrix": "node scripts/zones-matrix.cjs"
   },
   "dependencies": {

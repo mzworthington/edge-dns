@@ -52,3 +52,4 @@ runs:
         pulumi config set automaticHttpsRewrites "${EDGE_DNS_AUTOMATIC_HTTPS_REWRITES:-on}"
         pulumi config set tls13 "${EDGE_DNS_TLS13:-on}"
         pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"
+        pulumi stack export --stack "$STACK" | node scripts/assert-stack-zone-state.cjs "$STACK"
