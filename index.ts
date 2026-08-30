@@ -5,11 +5,16 @@ import {
   ManagedZone,
   type ZoneBaselineSetting,
 } from '@edge-dns/zone';
-import { inventoryCanonicalRedirectTo, inventoryGithubPagesHost } from './zones';
+import {
+  assertStackOwnsZone,
+  inventoryCanonicalRedirectTo,
+  inventoryGithubPagesHost,
+} from './zones';
 
 const config = new pulumi.Config();
 const accountId = config.require('accountId');
 const zoneName = config.require('zoneName');
+assertStackOwnsZone(pulumi.getStack(), zoneName);
 const zoneType = config.get('zoneType') as
   | 'full'
   | 'partial'

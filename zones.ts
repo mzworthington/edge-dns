@@ -76,6 +76,19 @@ export function listZoneStacks(filePath?: string): string[] {
 }
 
 /**
+ * One stack per zone: the selected Pulumi stack name must equal `zoneName`.
+ * Prevents applying zone A while stack B is selected.
+ */
+export function assertStackOwnsZone(stack: string, zoneName: string): void {
+  if (stack !== zoneName) {
+    throw new Error(
+      `Stack "${stack}" must manage zone "${stack}" (zoneName is "${zoneName}"). ` +
+        `Select the matching Pulumi stack — one stack per zone.`,
+    );
+  }
+}
+
+/**
  * Canonical redirect target for a zone from inventory (vanity only).
  * Undefined when the zone is product-owned or unknown.
  */
