@@ -1,12 +1,6 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as cloudflare from '@pulumi/cloudflare';
 import * as pulumi from '@pulumi/pulumi';
-
-const rumProxyWorkerSource = fs.readFileSync(
-  path.join(__dirname, 'rum-proxy-worker.mjs'),
-  'utf8',
-);
 
 /**
  * GitHub Pages apex addresses (unproxied).
@@ -42,10 +36,11 @@ export interface GitHubPagesOriginArgs {
 
 /**
  * Point an apex zone at GitHub Pages: four A + four AAAA at the apex,
- * www CNAME to the github.io host, plus the zone Web Analytics / RUM site.
+ * www CNAME to the github.io host, plus the zone Web Analytics / RUM site
+ * and a first-party RUM proxy on `insights.<zone>`.
  * Records are DNS-only (not proxied) so GitHub can verify the domain and
  * issue the Pages certificate. Auto-inject therefore does not run; the
- * product HTML must embed the site snippet.
+ * product HTML must embed `webAnalyticsSnippet` (beacon loaded from the proxy).
  */
 export class GitHubPagesOrigin extends pulumi.ComponentResource {
   public readonly apexA: cloudflare.DnsRecord[];
@@ -143,9 +138,10 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
         accountId: args.accountId,
         scriptName: rumScriptName,
         content: rumProxyWorkerSource,
+        contentFile: path.join(__dirname, 'rum-proxy-worker.mjs'),
         mainModule: 'rum-proxy-worker.mjs',
         contentType: 'application/javascript+module',
-        compatibilityDate: '2026-08-04',
+        compatibilityDate: '2024-11-06',
         bindings: [
           {
             name: 'ALLOWED_ORIGINS',

@@ -31,6 +31,26 @@ function withCors(response, cors) {
   return new Response(response.body, { status: response.status, headers });
 }
 
+function rumForwardHeaders(request) {
+  const headers = new Headers();
+  headers.set('content-type', request.headers.get('content-type') || 'text/plain;charset=UTF-8');
+  headers.set('origin', request.headers.get('Origin') || '');
+  for (const name of ['referer', 'user-agent', 'accept-language']) {
+    const value = request.headers.get(name);
+    if (value) headers.set(name, value);
+  }
+  const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('True-Client-IP');
+  if (ip) {
+    headers.set('CF-Connecting-IP', ip);
+    headers.set('X-Forwarded-For', ip);
+  }
+  return headers;
+}
+
+function isRumPath(pathname) {
+  return pathname === '/rum' || pathname === '/cdn-cgi/rum';
+}
+
 export async function rumProxyFetch(request, allowedOrigins, fetchImpl = fetch) {
   const origin = request.headers.get('Origin') || '';
   const cors = corsHeaders(origin, allowedOrigins);
@@ -57,15 +77,11 @@ export async function rumProxyFetch(request, allowedOrigins, fetchImpl = fetch) 
     return new Response(body, { status: upstream.status, headers });
   }
 
-  if ((url.pathname === '/cdn-cgi/rum' || url.pathname === '/rum') && request.method === 'POST') {
+  if (isRumPath(url.pathname) && request.method === 'POST') {
     if (!cors['Access-Control-Allow-Origin']) {
       return new Response('Forbidden', { status: 403, headers: cors });
     }
-    const headers = new Headers();
-    headers.set('content-type', request.headers.get('content-type') || 'text/plain;charset=UTF-8');
-    const referer = request.headers.get('referer');
-    if (referer) headers.set('referer', referer);
-    headers.set('origin', origin);
+    const headers = rumForwardHeaders(request);
     const rumTarget = new URL(RUM_URL);
     rumTarget.search = url.search;
     const upstream = await fetchImpl(rumTarget.toString(), {
