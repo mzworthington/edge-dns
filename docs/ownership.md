@@ -8,6 +8,7 @@
 | Apex or product host DNS (`@`, `www`, `api.…`, product subdomain) | **product repo** (Cloudflare Pages/Workers) |
 | GitHub Pages origin DNS (apex A/AAAA + www CNAME to `*.github.io`) | `edge-dns` when `githubPages` is set in [`zones.yaml`](zones.yaml) |
 | GitHub Pages Web Analytics / RUM site | `edge-dns` when `githubPages` is set (JS snippet lives in the product HTML) |
+| Pages / Workers Web Analytics beacon | Product deploy injects via [`inject-web-analytics-beacon`](reusable-cloudflare-ci.md); zone-owner stack holds `WebAnalyticsSite` |
 | Pages / Workers / R2 / product deploy | **product repo** (or GitHub Actions → GitHub Pages) |
 
 ## Rules

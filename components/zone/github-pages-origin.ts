@@ -1,5 +1,12 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as cloudflare from '@pulumi/cloudflare';
 import * as pulumi from '@pulumi/pulumi';
+
+const rumProxyWorkerSource = fs.readFileSync(
+  path.join(__dirname, 'rum-proxy-worker.mjs'),
+  'utf8',
+);
 
 /**
  * GitHub Pages apex addresses (unproxied).
@@ -50,6 +57,12 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
    * DNS-only GitHub Pages records; the product HTML must embed `snippet`.
    */
   public readonly webAnalytics: cloudflare.WebAnalyticsSite;
+  public readonly rumProxyScript: cloudflare.WorkersScript;
+  public readonly rumProxyDomain: cloudflare.WorkersCustomDomain;
+  /** `insights.<zone>` — first-party beacon + RUM proxy. */
+  public readonly rumProxyHostname: pulumi.Output<string>;
+  /** Snippet that loads the beacon from the first-party proxy. */
+  public readonly webAnalyticsSnippet: pulumi.Output<string>;
 
   constructor(name: string, args: GitHubPagesOriginArgs, opts?: pulumi.ComponentResourceOptions) {
     super('edge-dns:zone:GitHubPagesOrigin', name, args, opts);
@@ -118,6 +131,55 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
       },
     );
 
+    this.rumProxyHostname = pulumi.interpolate`insights.${args.zoneName}`;
+    const allowedOrigins = pulumi.interpolate`https://${args.zoneName},https://www.${args.zoneName}`;
+    const rumScriptName = pulumi.output(args.zoneName).apply((zone) =>
+      `${zone.replace(/\./g, '-')}-rum-proxy`,
+    );
+
+    this.rumProxyScript = new cloudflare.WorkersScript(
+      `${name}-rum-proxy`,
+      {
+        accountId: args.accountId,
+        scriptName: rumScriptName,
+        content: rumProxyWorkerSource,
+        mainModule: 'rum-proxy-worker.mjs',
+        contentType: 'application/javascript+module',
+        compatibilityDate: '2026-08-04',
+        bindings: [
+          {
+            name: 'ALLOWED_ORIGINS',
+            type: 'plain_text',
+            text: allowedOrigins,
+          },
+        ],
+      },
+      parent,
+    );
+
+    this.rumProxyDomain = new cloudflare.WorkersCustomDomain(
+      `${name}-rum-proxy-domain`,
+      {
+        accountId: args.accountId,
+        zoneId: args.zoneId,
+        zoneName: args.zoneName,
+        hostname: this.rumProxyHostname,
+        service: this.rumProxyScript.scriptName,
+      },
+      { ...parent, dependsOn: [this.rumProxyScript] },
+    );
+
+    this.webAnalyticsSnippet = pulumi
+      .all([this.rumProxyHostname, this.webAnalytics.siteToken])
+      .apply(([hostname, token]) => {
+        const origin = `https://${hostname}`;
+        const payload = JSON.stringify({
+          token,
+          send: { to: `${origin}/cdn-cgi/rum` },
+        });
+        return `<script type="module" src="${origin}/beacon.min.js" data-cf-beacon='${payload}'></script>`;
+      });
+
     if (args.challengeToken) {
       const owner = pulumi.output(args.githubIoHost).apply((host) => host.replace(/\.github\.io$/i, ''));
       this.challengeTxt = new cloudflare.DnsRecord(
@@ -140,7 +202,8 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
       wwwCnameId: this.wwwCname.id,
       webAnalyticsSiteTag: this.webAnalytics.siteTag,
       webAnalyticsSiteToken: this.webAnalytics.siteToken,
-      webAnalyticsSnippet: this.webAnalytics.snippet,
+      webAnalyticsSnippet: this.webAnalyticsSnippet,
+      rumProxyHostname: this.rumProxyHostname,
     });
   }
 }

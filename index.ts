@@ -100,4 +100,5 @@ export const githubPagesHostOut = githubPagesHost ?? null;
 export const githubPagesWwwCnameId = githubPages ? githubPages.wwwCname.id : null;
 export const webAnalyticsSiteTag = githubPages ? githubPages.webAnalytics.siteTag : null;
 export const webAnalyticsSiteToken = githubPages ? githubPages.webAnalytics.siteToken : null;
-export const webAnalyticsSnippet = githubPages ? githubPages.webAnalytics.snippet : null;
+export const webAnalyticsSnippet = githubPages ? githubPages.webAnalyticsSnippet : null;
+export const rumProxyHostnameOut = githubPages ? githubPages.rumProxyHostname : null;
