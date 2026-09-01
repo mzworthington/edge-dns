@@ -16,7 +16,7 @@
 
 ## Ownership split
 
-**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, shared zone settings, **org vanity redirects**, and **GitHub Pages origin DNS** when `githubPages` is set in [`zones.yaml`](../zones.yaml). Product repos that publish on Cloudflare own Pages/Workers/R2 and their hostname DNS.
+**Chosen:** `edge-dns` owns zone create/import, nameservers, DNSSEC, shared zone settings, **org vanity redirects**, and **GitHub Pages origin DNS plus Web Analytics / RUM** when `githubPages` is set in [`zones.yaml`](../zones.yaml). Product repos that publish on Cloudflare own Pages/Workers/R2 and their hostname DNS.
 
 **Why:** Keeps zone blast radius and org baselines in one place; product deploys stay with the product. Vanity aliases are not product apps — they belong with zone control plane. GitHub Pages sites have no Cloudflare product stack, so origin DNS would otherwise have nowhere to live.
 

@@ -2,7 +2,7 @@
 
 Org Cloudflare **control plane**: zones, nameservers, DNSSEC, and shared zone baselines (TLS/WAF defaults). Also the **home** for shared Cloudflare GitHub Actions and product bootstrap scripts.
 
-Product repos that publish on Cloudflare own Pages/Workers/R2 and DNS for their hostnames. This repo does **not** create Cloudflare Pages projects. **Exception:** when `githubPages` is set in [`zones.yaml`](zones.yaml), this repo owns apex/www DNS pointing at GitHub Pages ([github-pages-origin.md](docs/github-pages-origin.md)).
+Product repos that publish on Cloudflare own Pages/Workers/R2 and DNS for their hostnames. This repo does **not** create Cloudflare Pages projects. **Exception:** when `githubPages` is set in [`zones.yaml`](zones.yaml), this repo owns apex/www DNS pointing at GitHub Pages and the zone Web Analytics / RUM site ([github-pages-origin.md](docs/github-pages-origin.md)).
 
 See [docs/ownership.md](docs/ownership.md), [docs/org-redirects.md](docs/org-redirects.md), [docs/github-pages-origin.md](docs/github-pages-origin.md), [docs/reusable-cloudflare-ci.md](docs/reusable-cloudflare-ci.md), [docs/add-zone.md](docs/add-zone.md), [docs/add-product-dns.md](docs/add-product-dns.md), [docs/decisions.md](docs/decisions.md).
 

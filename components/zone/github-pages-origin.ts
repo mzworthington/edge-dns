@@ -20,6 +20,7 @@ export const GITHUB_PAGES_IPV6 = [
 ] as const;
 
 export interface GitHubPagesOriginArgs {
+  accountId: pulumi.Input<string>;
   zoneId: pulumi.Input<string>;
   /** Apex of this zone, e.g. `eval-driven-development.dev`. */
   zoneName: pulumi.Input<string>;
@@ -34,14 +35,21 @@ export interface GitHubPagesOriginArgs {
 
 /**
  * Point an apex zone at GitHub Pages: four A + four AAAA at the apex,
- * www CNAME to the github.io host. Records are DNS-only (not proxied) so
- * GitHub can verify the domain and issue the Pages certificate.
+ * www CNAME to the github.io host, plus the zone Web Analytics / RUM site.
+ * Records are DNS-only (not proxied) so GitHub can verify the domain and
+ * issue the Pages certificate. Auto-inject therefore does not run; the
+ * product HTML must embed the site snippet.
  */
 export class GitHubPagesOrigin extends pulumi.ComponentResource {
   public readonly apexA: cloudflare.DnsRecord[];
   public readonly apexAaaa: cloudflare.DnsRecord[];
   public readonly wwwCname: cloudflare.DnsRecord;
   public readonly challengeTxt?: cloudflare.DnsRecord;
+  /**
+   * Zone-tagged Web Analytics / RUM site. Auto-inject is a no-op on
+   * DNS-only GitHub Pages records; the product HTML must embed `snippet`.
+   */
+  public readonly webAnalytics: cloudflare.WebAnalyticsSite;
 
   constructor(name: string, args: GitHubPagesOriginArgs, opts?: pulumi.ComponentResourceOptions) {
     super('edge-dns:zone:GitHubPagesOrigin', name, args, opts);
@@ -97,6 +105,19 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
       dnsOpts,
     );
 
+    this.webAnalytics = new cloudflare.WebAnalyticsSite(
+      `${name}-web-analytics`,
+      {
+        accountId: args.accountId,
+        zoneTag: args.zoneId,
+        autoInstall: true,
+      },
+      {
+        ...parent,
+        protect: true,
+      },
+    );
+
     if (args.challengeToken) {
       const owner = pulumi.output(args.githubIoHost).apply((host) => host.replace(/\.github\.io$/i, ''));
       this.challengeTxt = new cloudflare.DnsRecord(
@@ -117,6 +138,9 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
     this.registerOutputs({
       githubIoHost: args.githubIoHost,
       wwwCnameId: this.wwwCname.id,
+      webAnalyticsSiteTag: this.webAnalytics.siteTag,
+      webAnalyticsSiteToken: this.webAnalytics.siteToken,
+      webAnalyticsSnippet: this.webAnalytics.snippet,
     });
   }
 }

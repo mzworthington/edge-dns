@@ -7,6 +7,7 @@
 | Shared Cloudflare GitHub Actions + product bootstrap scripts | `edge-dns` |
 | Apex or product host DNS (`@`, `www`, `api.…`, product subdomain) | **product repo** (Cloudflare Pages/Workers) |
 | GitHub Pages origin DNS (apex A/AAAA + www CNAME to `*.github.io`) | `edge-dns` when `githubPages` is set in [`zones.yaml`](zones.yaml) |
+| GitHub Pages Web Analytics / RUM site | `edge-dns` when `githubPages` is set (JS snippet lives in the product HTML) |
 | Pages / Workers / R2 / product deploy | **product repo** (or GitHub Actions → GitHub Pages) |
 
 ## Rules
@@ -24,5 +25,5 @@
 
 ## Example: Agent Lifecycle Kit
 
-- Zone `eval-driven-development.dev` + GitHub Pages origin DNS (`githubPages: mzworthington.github.io`) → this repo ([github-pages-origin.md](github-pages-origin.md)).
-- Static site deploy → `agent-lifecycle-kit` GitHub Actions (`actions/deploy-pages`). No product Cloudflare stack.
+- Zone `eval-driven-development.dev` + GitHub Pages origin DNS (`githubPages: mzworthington.github.io`) + Web Analytics / RUM site → this repo ([github-pages-origin.md](github-pages-origin.md)).
+- Static site deploy + RUM JS snippet → `agent-lifecycle-kit` GitHub Actions (`actions/deploy-pages`). No product Cloudflare stack.

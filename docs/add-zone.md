@@ -46,4 +46,5 @@ export PULUMI_ACCESS_TOKEN=…   # if using Pulumi Cloud
 - Zone Settings Read/Write only if `manageSettings=true`
 - Zone DNS Edit + Zone Single Redirect Edit when the zone has `role: vanity` in [`zones.yaml`](../zones.yaml) (see [org-redirects.md](org-redirects.md))
 - Zone DNS Edit when the zone has `githubPages` (GitHub Pages origin A/AAAA/CNAME)
+- Account Settings Read/Write when the zone has `githubPages` (Web Analytics / RUM site)
 - Pages Edit is **not** required here

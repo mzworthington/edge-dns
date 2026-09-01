@@ -9,6 +9,6 @@
 | Pulumi | `mzworthington/edge-dns/eval-driven-development.dev` |
 | Origin | GitHub Pages (`githubPages: mzworthington.github.io`) |
 
-Managed: `cloudflare.Zone` + GitHub Pages origin DNS (`manageSettings=false`). Site deploy stays in `agent-lifecycle-kit` GitHub Actions.
+Managed: `cloudflare.Zone` + GitHub Pages origin DNS + Web Analytics site `ea7ffeb012004862add795dccbb3c211` (`manageSettings=false`). Site deploy and the RUM JS snippet stay in `agent-lifecycle-kit` GitHub Actions.
 
 Product custom domain: [github-pages-origin.md](../github-pages-origin.md).

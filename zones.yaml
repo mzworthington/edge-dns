@@ -13,7 +13,7 @@ zones:
   eval-driven-development.dev:
     role: product
     githubPages: mzworthington.github.io
-    notes: Agent Lifecycle Kit / EDD site (GitHub Pages origin DNS in this repo)
+    notes: Agent Lifecycle Kit / EDD site (GitHub Pages origin DNS + Web Analytics in this repo)
 
   matthewworthington.com:
     role: vanity

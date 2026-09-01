@@ -31,7 +31,7 @@ export interface ManagedZoneArgs {
 /**
  * Cloudflare zone plus optional baseline settings.
  * Product DNS / Pages stay in product repos unless `githubPages` is set
- * (GitHub Pages origin DNS lives here). Org vanity redirects use
+ * (GitHub Pages origin DNS and Web Analytics live here). Org vanity redirects use
  * {@link CanonicalRedirect} (DNS stubs + Single Redirect ruleset).
  */
 export class ManagedZone extends pulumi.ComponentResource {
