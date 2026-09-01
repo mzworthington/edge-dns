@@ -171,7 +171,7 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
         const origin = `https://${hostname}`;
         const payload = JSON.stringify({
           token,
-          send: { to: `${origin}/cdn-cgi/rum` },
+          send: { to: `${origin}/rum` },
         });
         return `<script type="module" src="${origin}/beacon.min.js" data-cf-beacon='${payload}'></script>`;
       });

@@ -28,6 +28,16 @@ describe('beaconSnippet', () => {
     assert.match(html, /data-cf-beacon='\{"token":"tok-1"\}'/);
     assert.doesNotMatch(html, /"spa"/);
   });
+
+  it('loads the beacon from a first-party origin when given', () => {
+    const html = beaconSnippet('tok-1', false, 'https://insights.eval-driven-development.dev');
+    assert.match(html, /src="https:\/\/insights\.eval-driven-development\.dev\/beacon\.min\.js"/);
+    assert.match(
+      html,
+      /data-cf-beacon='\{"token":"tok-1","send":\{"to":"https:\/\/insights\.eval-driven-development\.dev\/rum"\}\}'/,
+    );
+    assert.doesNotMatch(html, /cloudflareinsights\.com/);
+  });
 });
 
 describe('injectHtml', () => {
@@ -106,6 +116,7 @@ describe('parseArgs', () => {
       spa: true,
       optional: false,
       token: undefined,
+      beaconOrigin: undefined,
       htmlPath: 'dist',
     });
     assert.deepEqual(
@@ -114,7 +125,25 @@ describe('parseArgs', () => {
         spa: false,
         optional: true,
         token: 'abc',
+        beaconOrigin: undefined,
         htmlPath: 'site/index.html',
+      },
+    );
+    assert.deepEqual(
+      parseArgs([
+        'node',
+        'inject-web-analytics.cjs',
+        '--beacon-origin',
+        'https://insights.eval-driven-development.dev',
+        '--',
+        'dist',
+      ]),
+      {
+        spa: false,
+        optional: false,
+        token: undefined,
+        beaconOrigin: 'https://insights.eval-driven-development.dev',
+        htmlPath: 'dist',
       },
     );
   });
@@ -138,6 +167,34 @@ describe('main', () => {
     const written = fs.readFileSync(file, 'utf8');
     assert.match(written, /"token":"from-env"/);
     assert.match(written, /"spa":true/);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('rewrites the beacon to a first-party origin', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rum-origin-'));
+    const file = path.join(dir, 'index.html');
+    fs.writeFileSync(file, '<!doctype html><html><body>hi</body></html>');
+    const result = await main(
+      [
+        'node',
+        'inject-web-analytics.cjs',
+        '--beacon-origin',
+        'https://insights.eval-driven-development.dev',
+        '--',
+        dir,
+      ],
+      { CLOUDFLARE_WEB_ANALYTICS_TOKEN: 'from-env' },
+      {
+        fetchSites: async () => {
+          throw new Error('API should not be called');
+        },
+      },
+    );
+    assert.equal(result.exitCode, 0);
+    const written = fs.readFileSync(file, 'utf8');
+    assert.match(written, /insights\.eval-driven-development\.dev\/beacon\.min\.js/);
+    assert.match(written, /insights\.eval-driven-development\.dev\/rum/);
+    assert.doesNotMatch(written, /cloudflareinsights\.com/);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 

@@ -33,14 +33,18 @@ describe('rumProxyFetch', () => {
       assert.equal(url, `${RUM_URL}?v=1`);
       assert.equal(init.method, 'POST');
       assert.equal(init.headers.get('origin'), 'https://eval-driven-development.dev');
-      return new Response('ok', { status: 204 });
+      assert.equal(init.headers.get('user-agent'), 'Mozilla/5.0');
+      assert.equal(init.headers.get('CF-Connecting-IP'), '203.0.113.9');
+      return new Response(null, { status: 204 });
     };
     const ok = await rumProxyFetch(
-      new Request('https://insights.eval-driven-development.dev/cdn-cgi/rum?v=1', {
+      new Request('https://insights.eval-driven-development.dev/rum?v=1', {
         method: 'POST',
         headers: {
           Origin: 'https://eval-driven-development.dev',
           'content-type': 'text/plain;charset=UTF-8',
+          'user-agent': 'Mozilla/5.0',
+          'CF-Connecting-IP': '203.0.113.9',
         },
         body: '{}',
       }),
@@ -50,7 +54,7 @@ describe('rumProxyFetch', () => {
     assert.equal(ok.status, 204);
 
     const denied = await rumProxyFetch(
-      new Request('https://insights.eval-driven-development.dev/cdn-cgi/rum', {
+      new Request('https://insights.eval-driven-development.dev/rum', {
         method: 'POST',
         headers: { Origin: 'https://evil.example' },
         body: '{}',
@@ -66,7 +70,7 @@ describe('rumProxyFetch', () => {
   it('answers CORS preflight', async () => {
     const { rumProxyFetch } = await import('../components/zone/rum-proxy-worker.mjs');
     const response = await rumProxyFetch(
-      new Request('https://insights.eval-driven-development.dev/cdn-cgi/rum', {
+      new Request('https://insights.eval-driven-development.dev/rum', {
         method: 'OPTIONS',
         headers: { Origin: 'https://eval-driven-development.dev' },
       }),

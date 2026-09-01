@@ -24,6 +24,12 @@ inputs:
   api-token:
     description: Cloudflare API token (Account Settings Read for RUM)
     required: true
+  beacon-origin:
+    description: >
+      First-party origin that serves beacon.min.js and /rum (GitHub Pages
+      DNS-only sites). Omit to load static.cloudflareinsights.com.
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
@@ -41,6 +47,9 @@ runs:
         fi
         if [[ "${{ inputs.required }}" != "true" ]]; then
           args+=(--optional)
+        fi
+        if [[ -n "${{ inputs.beacon-origin }}" ]]; then
+          args+=(--beacon-origin "${{ inputs.beacon-origin }}")
         fi
         node "$GITHUB_ACTION_PATH/../../../scripts/inject-web-analytics.cjs" \
           "${args[@]}" -- "${{ inputs.html-path }}"

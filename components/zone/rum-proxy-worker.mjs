@@ -89,7 +89,8 @@ export async function rumProxyFetch(request, allowedOrigins, fetchImpl = fetch) 
       headers,
       body: request.body,
     });
-    return withCors(new Response(upstream.body, { status: upstream.status }), cors);
+    const body = upstream.status === 204 || upstream.status === 205 ? null : upstream.body;
+    return withCors(new Response(body, { status: upstream.status }), cors);
   }
 
   return new Response('Not found', { status: 404, headers: cors });

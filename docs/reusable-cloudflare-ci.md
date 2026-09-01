@@ -83,7 +83,7 @@ Zone `WebAnalyticsSite` auto-inject does **not** rewrite Cloudflare Pages or Wor
     api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 ```
 
-The action looks up the existing Web Analytics site for `zone-id`. Subdomains on a shared zone (SteerCo, the build monitor) must **not** create a second site; they reuse the apex stack’s token. GitHub Pages origins still paste the snippet in source HTML ([github-pages-origin.md](github-pages-origin.md)).
+The action looks up the existing Web Analytics site for `zone-id`. Subdomains on a shared zone (SteerCo, the build monitor) must **not** create a second site; they reuse the apex stack’s token. GitHub Pages origins paste `webAnalyticsSnippet` from the zone stack (first-party `insights.<zone>` proxy) — see [github-pages-origin.md](github-pages-origin.md). For a first-party beacon on a DNS-only origin, pass `beacon-origin: https://insights.<zone>`.
 
 Local equivalent:
 

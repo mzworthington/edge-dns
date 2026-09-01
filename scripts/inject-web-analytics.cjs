@@ -24,7 +24,7 @@ function beaconSnippet(token, spa, beaconOrigin) {
   const payload = spa ? { token, spa: true } : { token };
   if (beaconOrigin) {
     const origin = String(beaconOrigin).replace(/\/$/, '');
-    payload.send = { to: `${origin}/cdn-cgi/rum` };
+    payload.send = { to: `${origin}/rum` };
     return `<script type="module" src="${origin}/beacon.min.js" data-cf-beacon='${JSON.stringify(payload)}'></script>`;
   }
   return `<script type="module" src="https://${BEACON_HOST}" data-cf-beacon='${JSON.stringify(payload)}'></script>`;
