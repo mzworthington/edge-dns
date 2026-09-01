@@ -13,8 +13,6 @@ Zone lifecycle stays in this repo ([ownership.md](ownership.md)). This page cove
 | [`.github/actions/setup-edge-dns-pulumi`](../.github/actions/setup-edge-dns-pulumi) | This repo only: zone stack config |
 | [`.github/workflows/product-pulumi-cloudflare.yml`](../.github/workflows/product-pulumi-cloudflare.yml) | Reusable preview → **Approval** (Environment) → apply |
 | [`scripts/setup-cloudflare-hosting.sh`](../scripts/setup-cloudflare-hosting.sh) | Local bootstrap: secrets → GitHub → Pulumi config |
-| [`scripts/inject-web-analytics.cjs`](../scripts/inject-web-analytics.cjs) | Insert the zone RUM beacon into built HTML |
-| [`.github/actions/inject-web-analytics-beacon`](../.github/actions/inject-web-analytics-beacon) | Deploy-time wrapper around that script |
 | [`examples/product-cloudflare/`](../examples/product-cloudflare/) | Thin shims to copy into product repos |
 
 ## Product repo: CI
@@ -69,28 +67,11 @@ If you keep a custom workflow, still reuse the actions:
     PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 ```
 
-### Web Analytics (RUM) on Pages / Workers
+### Web Analytics (RUM)
 
-Zone `WebAnalyticsSite` auto-inject does **not** rewrite Cloudflare Pages or Worker HTML. Product deploys should inject the beacon into the built HTML **after** download/artifact and **before** `wrangler pages deploy` / `wrangler deploy`:
+Orange-clouded product hosts (Cloudflare Pages / Workers): the zone-owner stack creates `WebAnalyticsSite` with `autoInstall: true` and `enabled: true`. Do not paste snippets or inject at deploy. Shared-apex products (SteerCo, the build monitor, template forks) must **not** create a second site.
 
-```yaml
-- uses: mzworthington/edge-dns/.github/actions/inject-web-analytics-beacon@main
-  with:
-    html-path: app/dist
-    spa: 'true' # React / history-API apps; omit or false for Jekyll / MPA
-    account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-    api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-```
-
-The action looks up the existing Web Analytics site for `zone-id`. Subdomains on a shared zone (SteerCo, the build monitor) must **not** create a second site; they reuse the apex stack’s token. GitHub Pages origins paste `webAnalyticsSnippet` from the zone stack (first-party `insights.<zone>` proxy) — see [github-pages-origin.md](github-pages-origin.md). For a first-party beacon on a DNS-only origin, pass `beacon-origin: https://insights.<zone>`.
-
-Local equivalent:
-
-```bash
-CLOUDFLARE_ACCOUNT_ID=… CLOUDFLARE_ZONE_ID=… CLOUDFLARE_API_TOKEN=… \
-  node path/to/edge-dns/scripts/inject-web-analytics.cjs --spa -- dist
-```
+Grey-cloud GitHub Pages origins cannot use auto-install. They keep a first-party `insights.<zone>` beacon host and paste `webAnalyticsSnippet` — see [github-pages-origin.md](github-pages-origin.md).
 
 ### Env vars understood by `setup-pulumi-cloudflare`
 

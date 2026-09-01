@@ -1,7 +1,18 @@
-/** First-party Cloudflare Web Analytics proxy for DNS-only GitHub Pages origins. */
+/**
+ * First-party Cloudflare Web Analytics proxy for DNS-only GitHub Pages origins.
+ * Serve `beacon.min.js` from this host. Do not point `send.to` here: Cloudflare
+ * rejects Worker-forwarded RUM POSTs (`/cdn-cgi/rum` 404). Ingest stays on
+ * cloudflareinsights.com until a first-party POST path is proven.
+ */
 
 export const BEACON_URL = 'https://static.cloudflareinsights.com/beacon.min.js';
 export const RUM_URL = 'https://cloudflareinsights.com/cdn-cgi/rum';
+
+/** Grey-cloud snippet: first-party script, Cloudflare ingest (no `send.to` override). */
+export function greyCloudBeaconSnippet(hostname, token) {
+  const origin = `https://${hostname}`;
+  return `<script type="module" src="${origin}/beacon.min.js" data-cf-beacon='${JSON.stringify({ token })}'></script>`;
+}
 
 export function parseAllowedOrigins(raw) {
   return String(raw || '')

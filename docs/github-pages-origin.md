@@ -16,12 +16,12 @@ That creates:
 
 - Four `A` + four `AAAA` at the apex → [GitHub Pages addresses](https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site) (**DNS-only**)
 - `www` `CNAME` → `mzworthington.github.io` (**DNS-only**)
-- `WebAnalyticsSite` for the zone (`zoneTag` + `autoInstall: true`)
-- Worker `insights.<zone>` that serves `beacon.min.js` and forwards `/rum` to Cloudflare (orange-clouded custom domain)
+- `WebAnalyticsSite` for the zone (`zoneTag`, `autoInstall: false` — grey-cloud cannot use auto-inject)
+- Worker `insights.<zone>` that serves `beacon.min.js` (orange-clouded custom domain)
 
-Apex/www stay unproxied so GitHub can verify the domain and issue the Pages certificate. Auto-inject therefore does not run, and a third-party `cloudflareinsights.com` snippet is blocked by Firefox ETP / tracker lists. Copy the stack output `webAnalyticsSnippet` into the product HTML (`index.html`, `404.html`) before `</body>` — it loads the beacon from `https://insights.<zone>/beacon.min.js`.
+Apex/www stay unproxied so GitHub can verify the domain and issue the Pages certificate. Copy the stack output `webAnalyticsSnippet` into the product HTML (`index.html`, `404.html`) before `</body>`. It loads the beacon from `https://insights.<zone>/beacon.min.js` and leaves ingest on `cloudflareinsights.com` (Worker-proxied `send.to` 404s).
 
-Stack output `rumProxyHostnameOut` is the proxy hostname (`insights.eval-driven-development.dev`).
+Stack output `rumProxyHostnameOut` is the beacon hostname (`insights.eval-driven-development.dev`).
 
 If the site already exists in the dashboard, import it instead of creating a second one:
 
@@ -70,4 +70,4 @@ pulumi up
 
 ## Token scope
 
-Zone DNS Edit on this zone (already required for vanity redirects). Account Settings Read/Write for the Web Analytics site. **Workers Scripts Write** for the first-party RUM proxy Worker. Cloudflare Pages Edit is not required.
+Zone DNS Edit on this zone (already required for vanity redirects). Account Settings Read/Write for the Web Analytics site. **Workers Scripts Write** for the first-party beacon Worker. Cloudflare Pages Edit is not required.

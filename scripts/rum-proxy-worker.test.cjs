@@ -5,6 +5,16 @@ const assert = require('node:assert/strict');
 
 const ALLOWED = ['https://eval-driven-development.dev', 'https://www.eval-driven-development.dev'];
 
+describe('grey-cloud snippet', () => {
+  it('loads the beacon first-party and does not override send.to', async () => {
+    const { greyCloudBeaconSnippet } = await import('../components/zone/rum-proxy-worker.mjs');
+    const snippet = greyCloudBeaconSnippet('insights.eval-driven-development.dev', 'tok-1');
+    assert.match(snippet, /insights\.eval-driven-development\.dev\/beacon\.min\.js/);
+    assert.doesNotMatch(snippet, /"send"/);
+    assert.doesNotMatch(snippet, /\/rum/);
+  });
+});
+
 describe('rumProxyFetch', () => {
   it('proxies the beacon JS for an allowed origin', async () => {
     const { rumProxyFetch, BEACON_URL } = await import('../components/zone/rum-proxy-worker.mjs');

@@ -43,10 +43,11 @@ export interface GitHubPagesOriginArgs {
 /**
  * Point an apex zone at GitHub Pages: four A + four AAAA at the apex,
  * www CNAME to the github.io host, plus the zone Web Analytics / RUM site
- * and a first-party RUM proxy on `insights.<zone>`.
+ * and a first-party beacon host on `insights.<zone>`.
  * Records are DNS-only (not proxied) so GitHub can verify the domain and
- * issue the Pages certificate. Auto-inject therefore does not run; the
- * product HTML must embed `webAnalyticsSnippet` (beacon loaded from the proxy).
+ * issue the Pages certificate. `autoInstall` cannot rewrite that HTML;
+ * the product embeds `webAnalyticsSnippet` (script from the proxy, ingest
+ * on Cloudflare's default endpoint).
  */
 export class GitHubPagesOrigin extends pulumi.ComponentResource {
   public readonly apexA: cloudflare.DnsRecord[];
@@ -54,8 +55,8 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
   public readonly wwwCname: cloudflare.DnsRecord;
   public readonly challengeTxt?: cloudflare.DnsRecord;
   /**
-   * Zone-tagged Web Analytics / RUM site. Auto-inject is a no-op on
-   * DNS-only GitHub Pages records; the product HTML must embed `snippet`.
+   * Zone-tagged Web Analytics / RUM site. Grey-cloud GitHub Pages cannot
+   * use `autoInstall`; the product HTML must embed `webAnalyticsSnippet`.
    */
   public readonly webAnalytics: cloudflare.WebAnalyticsSite;
   public readonly rumProxyScript: cloudflare.WorkersScript;
@@ -124,7 +125,7 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
       {
         accountId: args.accountId,
         zoneTag: args.zoneId,
-        autoInstall: true,
+        autoInstall: false,
       },
       {
         ...parent,
@@ -174,10 +175,7 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
       .all([this.rumProxyHostname, this.webAnalytics.siteToken])
       .apply(([hostname, token]) => {
         const origin = `https://${hostname}`;
-        const payload = JSON.stringify({
-          token,
-          send: { to: `${origin}/rum` },
-        });
+        const payload = JSON.stringify({ token });
         return `<script type="module" src="${origin}/beacon.min.js" data-cf-beacon='${payload}'></script>`;
       });
 

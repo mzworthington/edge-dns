@@ -19,7 +19,6 @@ on:
       - '.github/actions/setup-edge-dns-pulumi/**'
       - '.github/actions/pulumi-rich-report/**'
       - '.github/actions/setup-pulumi-cloudflare/**'
-      - '.github/actions/inject-web-analytics-beacon/**'
   push:
     paths:
       - 'index.ts'
@@ -34,7 +33,6 @@ on:
       - '.github/actions/setup-edge-dns-pulumi/**'
       - '.github/actions/pulumi-rich-report/**'
       - '.github/actions/setup-pulumi-cloudflare/**'
-      - '.github/actions/inject-web-analytics-beacon/**'
   workflow_dispatch:
     inputs:
       apply:

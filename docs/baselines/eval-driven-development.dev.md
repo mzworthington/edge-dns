@@ -9,6 +9,6 @@
 | Pulumi | `mzworthington/edge-dns/eval-driven-development.dev` |
 | Origin | GitHub Pages (`githubPages: mzworthington.github.io`) |
 
-Managed: `cloudflare.Zone` + GitHub Pages origin DNS + Web Analytics site `ea7ffeb012004862add795dccbb3c211` (`manageSettings=false`) + first-party RUM proxy on `insights.eval-driven-development.dev`. Site deploy and the RUM JS snippet stay in `agent-lifecycle-kit` GitHub Actions.
+Managed: `cloudflare.Zone` + GitHub Pages origin DNS + Web Analytics site `ea7ffeb012004862add795dccbb3c211` (`manageSettings=false`) + first-party beacon host on `insights.eval-driven-development.dev`. Site deploy and the grey-cloud RUM snippet stay in `agent-lifecycle-kit` GitHub Actions.
 
 Product custom domain: [github-pages-origin.md](../github-pages-origin.md).
