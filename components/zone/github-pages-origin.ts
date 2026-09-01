@@ -1,6 +1,12 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as cloudflare from '@pulumi/cloudflare';
 import * as pulumi from '@pulumi/pulumi';
+
+const rumProxyWorkerSource = fs.readFileSync(
+  path.join(__dirname, 'rum-proxy-worker.mjs'),
+  'utf8',
+);
 
 /**
  * GitHub Pages apex addresses (unproxied).
@@ -138,7 +144,6 @@ export class GitHubPagesOrigin extends pulumi.ComponentResource {
         accountId: args.accountId,
         scriptName: rumScriptName,
         content: rumProxyWorkerSource,
-        contentFile: path.join(__dirname, 'rum-proxy-worker.mjs'),
         mainModule: 'rum-proxy-worker.mjs',
         contentType: 'application/javascript+module',
         compatibilityDate: '2024-11-06',
