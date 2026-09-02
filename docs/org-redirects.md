@@ -6,6 +6,7 @@ Vanity zones that only forward to a canonical host are declared in [`zones.yaml`
 |-------------|----------------|
 | `mzworthington.com` | `mzworthington.co.uk` |
 | `matthewworthington.com` | `mzworthington.co.uk` |
+| `eval-driven-development.dev` | `eval-driven.dev` |
 
 ## What gets created
 
@@ -24,4 +25,5 @@ Override with stack config if needed: `pulumi config set canonicalRedirectTo <ho
 ## Not in scope here
 
 - Product site hosting stays on `mzworthington.co.uk` in the [mzworthington](https://github.com/mzworthington/mzworthington) repo (`_redirects` www → apex only).
-- Do not attach Pages/Workers to vanity zones once redirects are live.
+- Agent Lifecycle Kit hosting stays on `eval-driven.dev` (GitHub Pages origin DNS in this repo). `eval-driven-development.dev` is vanity only.
+- Do not attach Pages/Workers to vanity zones once redirects are live. Convert a former `githubPages` zone to vanity only after the product repo’s GitHub Pages custom domain is the new host and the Pages certificate is issued. Unprotect the old `WebAnalyticsSite` before that apply (`pulumi state unprotect`); it is `protect: true`.

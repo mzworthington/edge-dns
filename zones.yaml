@@ -10,10 +10,15 @@ zones:
     role: product
     notes: ArchLens product zone
 
-  eval-driven-development.dev:
+  eval-driven.dev:
     role: product
     githubPages: mzworthington.github.io
-    notes: Agent Lifecycle Kit / EDD site (GitHub Pages origin DNS + Web Analytics in this repo)
+    notes: Agent Lifecycle Kit / EDD canonical site (GitHub Pages origin DNS + Web Analytics in this repo)
+
+  eval-driven-development.dev:
+    role: vanity
+    redirectTo: eval-driven.dev
+    notes: Former kit hostname; 301 to eval-driven.dev (apply after GitHub Pages CNAME + cert are on the new host)
 
   matthewworthington.com:
     role: vanity

@@ -28,7 +28,8 @@ Declared in [`zones.yaml`](zones.yaml) (source of truth; CI matrix + vanity redi
 | Stack (domain) | Role |
 |----------------|------|
 | `archlens.dev` | product — ArchLens |
-| `eval-driven-development.dev` | product — Agent Lifecycle Kit (GitHub Pages origin DNS here) |
+| `eval-driven.dev` | product — Agent Lifecycle Kit (GitHub Pages origin DNS here) |
+| `eval-driven-development.dev` | vanity → `eval-driven.dev` ([org-redirects](docs/org-redirects.md)) |
 | `matthewworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.co.uk` | product — personal / blog (DNS/Pages in mzworthington repo) |

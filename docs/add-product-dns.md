@@ -27,4 +27,4 @@ Products that publish on **Cloudflare** own hostname DNS and app edge resources.
 
 ArchLens (`archlens.dev`): zone in `edge-dns`; Pages + apex/www DNS in blueprint `infra/cloudflare`.
 
-Agent Lifecycle Kit (`eval-driven-development.dev`): zone + GitHub Pages origin DNS + Web Analytics + `insights.` beacon host in `edge-dns` (`githubPages` in [`zones.yaml`](../zones.yaml)). The kit repo runs GitHub Actions Pages deploy and embeds the grey-cloud RUM snippet — see [github-pages-origin.md](github-pages-origin.md).
+Agent Lifecycle Kit (`eval-driven.dev`): zone + GitHub Pages origin DNS + Web Analytics + `insights.` beacon host in `edge-dns` (`githubPages` in [`zones.yaml`](../zones.yaml)). The former hostname `eval-driven-development.dev` is vanity → `eval-driven.dev`. The kit repo runs GitHub Actions Pages deploy and embeds the grey-cloud RUM snippet — see [github-pages-origin.md](github-pages-origin.md).

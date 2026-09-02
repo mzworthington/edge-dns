@@ -7,8 +7,8 @@
 | Type / status | `full` / `active` (Cloudflare Registrar) |
 | Name servers | `lauryn.ns.cloudflare.com`, `tosana.ns.cloudflare.com` |
 | Pulumi | `mzworthington/edge-dns/eval-driven-development.dev` |
-| Origin | GitHub Pages (`githubPages: mzworthington.github.io`) |
+| Role | vanity → `eval-driven.dev` |
 
-Managed: `cloudflare.Zone` + GitHub Pages origin DNS + Web Analytics site `ea7ffeb012004862add795dccbb3c211` (`manageSettings=false`) + first-party beacon host on `insights.eval-driven-development.dev`. Site deploy and the grey-cloud RUM snippet stay in `agent-lifecycle-kit` GitHub Actions.
+Managed: `cloudflare.Zone` (`manageSettings=false`) plus org vanity **CanonicalRedirect** → `eval-driven.dev` ([org-redirects.md](../org-redirects.md)).
 
-Product custom domain: [github-pages-origin.md](../github-pages-origin.md).
+Former GitHub Pages origin DNS, Web Analytics site `ea7ffeb012004862add795dccbb3c211`, and `insights.eval-driven-development.dev` lived on this zone. Remove those resources when converting to vanity (unprotect the `WebAnalyticsSite` first). Apply this stack only after GitHub Pages is serving `eval-driven.dev` with a valid certificate.

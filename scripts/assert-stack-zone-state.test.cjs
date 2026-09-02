@@ -19,6 +19,7 @@ describe('expectedZoneNameFromStack', () => {
       expectedZoneNameFromStack('eval-driven-development.dev'),
       'eval-driven-development-dev-zone',
     );
+    assert.equal(expectedZoneNameFromStack('eval-driven.dev'), 'eval-driven-dev-zone');
   });
 });
 
