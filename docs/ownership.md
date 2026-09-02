@@ -25,8 +25,8 @@
 - Zone `archlens.dev` lifecycle + baselines → `zones/archlens.dev` in this repo.
 - Pages project, apex/www CNAMEs, Pages domains, catalog R2 → ArchLens/blueprint `infra/cloudflare`.
 
-## Example: Agent Lifecycle Kit
+## Example: Waykit
 
 - Zone `waykit.dev` + GitHub Pages origin DNS (`githubPages: mzworthington.github.io`) + Web Analytics / RUM site + `insights.` beacon host → this repo ([github-pages-origin.md](github-pages-origin.md)).
 - Zones `eval-driven.dev` and `eval-driven-development.dev` are vanity → `waykit.dev` ([org-redirects.md](org-redirects.md)).
-- Static site deploy + grey-cloud RUM snippet → `agent-lifecycle-kit` GitHub Actions (`actions/deploy-pages`). No product Cloudflare stack.
+- Static site deploy + grey-cloud RUM snippet → `waykit` GitHub Actions (`actions/deploy-pages`). No product Cloudflare stack.

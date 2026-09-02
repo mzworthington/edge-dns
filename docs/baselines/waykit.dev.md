@@ -9,7 +9,7 @@
 | Pulumi | `mzworthington/edge-dns/waykit.dev` |
 | Origin | GitHub Pages (`githubPages: mzworthington.github.io`) |
 
-Managed: `cloudflare.Zone` + GitHub Pages origin DNS + Web Analytics / RUM (`manageSettings=false`) + first-party beacon host on `insights.waykit.dev`. Site deploy and the grey-cloud RUM snippet stay in `agent-lifecycle-kit` GitHub Actions. Copy stack output `webAnalyticsSnippet` into `web/src/layouts/SiteLayout.astro` after the first apply.
+Managed: `cloudflare.Zone` + GitHub Pages origin DNS + Web Analytics / RUM (`manageSettings=false`) + first-party beacon host on `insights.waykit.dev`. Site deploy and the grey-cloud RUM snippet stay in the `waykit` GitHub Actions. Copy stack output `webAnalyticsSnippet` into `web/src/layouts/SiteLayout.astro` after the first apply.
 
 Product custom domain: [github-pages-origin.md](../github-pages-origin.md). Import this existing registrar zone; do not create a second zone.
 

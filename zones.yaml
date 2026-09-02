@@ -13,7 +13,7 @@ zones:
   waykit.dev:
     role: product
     githubPages: mzworthington.github.io
-    notes: Agent Lifecycle Kit / EDD canonical site (GitHub Pages origin DNS + Web Analytics in this repo). Import existing zone 45dfea5a86a5b5834a913c13ae3a112d before first up.
+    notes: Waykit / EDD canonical site (GitHub Pages origin DNS + Web Analytics in this repo). Import existing zone 45dfea5a86a5b5834a913c13ae3a112d before first up.
 
   eval-driven.dev:
     role: vanity

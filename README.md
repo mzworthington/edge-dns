@@ -28,7 +28,7 @@ Declared in [`zones.yaml`](zones.yaml) (source of truth; CI matrix + vanity redi
 | Stack (domain) | Role |
 |----------------|------|
 | `archlens.dev` | product — ArchLens |
-| `waykit.dev` | product — Agent Lifecycle Kit (GitHub Pages origin DNS here) |
+| `waykit.dev` | product — Waykit (GitHub Pages origin DNS here) |
 | `eval-driven.dev` | vanity → `waykit.dev` ([org-redirects](docs/org-redirects.md)) |
 | `eval-driven-development.dev` | vanity → `waykit.dev` ([org-redirects](docs/org-redirects.md)) |
 | `matthewworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
