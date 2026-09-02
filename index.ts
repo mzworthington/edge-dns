@@ -9,6 +9,8 @@ import {
   assertStackOwnsZone,
   inventoryCanonicalRedirectTo,
   inventoryGithubPagesHost,
+  legacyGithubPagesWwwRecordUrn,
+  zoneSlug as slugifyZone,
 } from './zones';
 
 const config = new pulumi.Config();
@@ -23,7 +25,7 @@ const zoneType = config.get('zoneType') as
   | undefined;
 
 /** Logical resource name: archlens.dev → archlens-dev */
-const zoneSlug = zoneName.replace(/\./g, '-');
+const zoneSlug = slugifyZone(zoneName);
 
 /**
  * When true, manage baseline ZoneSettings (needs Zone Settings Read/Write on the API token).
@@ -71,6 +73,9 @@ const redirect = canonicalRedirectTo
         zoneId: managed.zoneId,
         zoneName,
         targetHost: canonicalRedirectTo,
+        wwwRecordAliases: [
+          legacyGithubPagesWwwRecordUrn(pulumi.getStack(), pulumi.getProject(), zoneName),
+        ],
       },
       { parent: managed },
     )

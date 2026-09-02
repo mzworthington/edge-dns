@@ -75,12 +75,15 @@ Apply **in this order**. Do not convert the old hostname to vanity in the same a
 1. Import + apply stack `eval-driven.dev` (`githubPages`). Zone ID `8b3f72e434fbb497e2b1a22c0b2737ae` already exists (Cloudflare Registrar).
 2. Copy `webAnalyticsSnippet` into the kit `web/index.html` beacon script.
 3. Set GitHub Pages `cname` to `eval-driven.dev` and wait until GitHub shows a valid HTTPS certificate.
-4. Convert the former host to vanity (`role: vanity`, `redirectTo: eval-driven.dev`). Unprotect the old RUM site, then apply:
+4. Convert the former host to vanity (`role: vanity`, `redirectTo: eval-driven.dev`). Apply the stack (CI unprotects leftover `WebAnalyticsSite` via `scripts/vanity-cutover.cjs`). CanonicalRedirect www aliases the former GitHub Pages www CNAME so Cloudflare does not see A+CNAME on `www`.
+
+Locally:
 
 ```bash
 pulumi stack select eval-driven-development.dev
-pulumi state unprotect \
-  'urn:pulumi:eval-driven-development.dev::edge-dns::edge-dns:zone:ManagedZone$edge-dns:zone:GitHubPagesOrigin$cloudflare:index/webAnalyticsSite:WebAnalyticsSite::eval-driven-development-dev-github-pages-web-analytics'
+pulumi stack export | node scripts/vanity-cutover.cjs eval-driven-development.dev | while read -r urn; do
+  pulumi state unprotect --yes "$urn"
+done
 pulumi up
 ```
 

@@ -26,4 +26,4 @@ Override with stack config if needed: `pulumi config set canonicalRedirectTo <ho
 
 - Product site hosting stays on `mzworthington.co.uk` in the [mzworthington](https://github.com/mzworthington/mzworthington) repo (`_redirects` www → apex only).
 - Agent Lifecycle Kit hosting stays on `eval-driven.dev` (GitHub Pages origin DNS in this repo). `eval-driven-development.dev` is vanity only.
-- Do not attach Pages/Workers to vanity zones once redirects are live. Convert a former `githubPages` zone to vanity only after the product repo’s GitHub Pages custom domain is the new host and the Pages certificate is issued. Unprotect the old `WebAnalyticsSite` before that apply (`pulumi state unprotect`); it is `protect: true`.
+- Do not attach Pages/Workers to vanity zones once redirects are live. Convert a former `githubPages` zone to vanity only after the product repo’s GitHub Pages custom domain is the new host and the Pages certificate is issued. Apply on `main` unprotects leftover `WebAnalyticsSite` (`protect: true`) via `scripts/vanity-cutover.cjs`.

@@ -117,3 +117,25 @@ export function inventoryGithubPagesHost(
   }
   return entry.githubPages;
 }
+
+/** Logical resource slug: eval-driven-development.dev → eval-driven-development-dev */
+export function zoneSlug(zoneName: string): string {
+  return zoneName.replace(/\./g, '-');
+}
+
+/**
+ * URN of the GitHubPagesOrigin www CNAME. Vanity www A records alias this so a
+ * githubPages → vanity cutover is a replace (Cloudflare error 81054 otherwise).
+ * Keep in sync with `scripts/vanity-cutover.cjs`.
+ */
+export function legacyGithubPagesWwwRecordUrn(
+  stack: string,
+  project: string,
+  zoneName: string,
+): string {
+  const slug = zoneSlug(zoneName);
+  return (
+    `urn:pulumi:${stack}::${project}::edge-dns:zone:ManagedZone$edge-dns:zone:GitHubPagesOrigin` +
+    `$cloudflare:index/dnsRecord:DnsRecord::${slug}-github-pages-www`
+  );
+}

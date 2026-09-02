@@ -12,6 +12,12 @@ export interface CanonicalRedirectArgs {
   targetHost: pulumi.Input<string>;
   /** Redirect status; default 301. */
   statusCode?: pulumi.Input<301 | 302 | 307 | 308>;
+  /**
+   * Alias the www stub onto a former GitHub Pages www CNAME so a githubPages →
+   * vanity cutover is a replace (delete CNAME, then create A). Creating the A
+   * alongside the CNAME fails Cloudflare error 81054.
+   */
+  wwwRecordAliases?: pulumi.Input<pulumi.URN | pulumi.Alias>[];
 }
 
 /**
@@ -57,7 +63,11 @@ export class CanonicalRedirect extends pulumi.ComponentResource {
         ttl: 1,
         comment: 'Org vanity redirect stub (edge-dns)',
       },
-      parent,
+      {
+        ...parent,
+        deleteBeforeReplace: true,
+        aliases: args.wwwRecordAliases,
+      },
     );
 
     this.ruleset = new cloudflare.Ruleset(
