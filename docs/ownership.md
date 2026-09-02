@@ -27,6 +27,6 @@
 
 ## Example: Agent Lifecycle Kit
 
-- Zone `eval-driven.dev` + GitHub Pages origin DNS (`githubPages: mzworthington.github.io`) + Web Analytics / RUM site + `insights.` beacon host → this repo ([github-pages-origin.md](github-pages-origin.md)).
-- Zone `eval-driven-development.dev` is vanity → `eval-driven.dev` ([org-redirects.md](org-redirects.md)).
+- Zone `waykit.dev` + GitHub Pages origin DNS (`githubPages: mzworthington.github.io`) + Web Analytics / RUM site + `insights.` beacon host → this repo ([github-pages-origin.md](github-pages-origin.md)).
+- Zones `eval-driven.dev` and `eval-driven-development.dev` are vanity → `waykit.dev` ([org-redirects.md](org-redirects.md)).
 - Static site deploy + grey-cloud RUM snippet → `agent-lifecycle-kit` GitHub Actions (`actions/deploy-pages`). No product Cloudflare stack.

@@ -7,7 +7,7 @@ Some product sites publish from **GitHub Actions → GitHub Pages**, not Cloudfl
 In [`zones.yaml`](../zones.yaml):
 
 ```yaml
-eval-driven.dev:
+waykit.dev:
   role: product
   githubPages: mzworthington.github.io
 ```
@@ -19,19 +19,19 @@ That creates:
 - `WebAnalyticsSite` for the zone (`zoneTag`, `autoInstall: false` — grey-cloud cannot use auto-inject)
 - Worker `insights.<zone>` that serves `beacon.min.js` (orange-clouded custom domain)
 
-Apex/www stay unproxied so GitHub can verify the domain and issue the Pages certificate. Copy the stack output `webAnalyticsSnippet` into the product HTML (`web/index.html`) before `</body>`. It loads the beacon from `https://insights.<zone>/beacon.min.js` and leaves ingest on `cloudflareinsights.com` (Worker-proxied `send.to` 404s).
+Apex/www stay unproxied so GitHub can verify the domain and issue the Pages certificate. Copy the stack output `webAnalyticsSnippet` into the product HTML (`web/src/layouts/SiteLayout.astro` in the kit) before `</body>`. It loads the beacon from `https://insights.<zone>/beacon.min.js` and leaves ingest on `cloudflareinsights.com` (Worker-proxied `send.to` 404s).
 
-Stack output `rumProxyHostnameOut` is the beacon hostname (`insights.eval-driven.dev`).
+Stack output `rumProxyHostnameOut` is the beacon hostname (`insights.waykit.dev`).
 
 If the site already exists in the dashboard, import it instead of creating a second one:
 
 ```bash
-pulumi stack select eval-driven.dev
+pulumi stack select waykit.dev
 pulumi import --yes --generate-code=false \
   'cloudflare:index/webAnalyticsSite:WebAnalyticsSite' \
-  eval-driven-dev-github-pages-web-analytics \
+  waykit-dev-github-pages-web-analytics \
   '<account_id>/<site_id>' \
-  --parent 'urn:pulumi:eval-driven.dev::edge-dns::edge-dns:zone:ManagedZone$edge-dns:zone:GitHubPagesOrigin::eval-driven-dev-github-pages'
+  --parent 'urn:pulumi:waykit.dev::edge-dns::edge-dns:zone:ManagedZone$edge-dns:zone:GitHubPagesOrigin::waykit-dev-github-pages'
 ```
 
 `site_id` is `site_tag` from `GET /accounts/{account_id}/rum/site_info/list`.
@@ -47,7 +47,7 @@ gh api --method PUT repos/<owner>/<repo>/pages \
   --input - <<'EOF'
 {
   "build_type": "workflow",
-  "cname": "eval-driven.dev"
+  "cname": "waykit.dev"
 }
 EOF
 ```
@@ -56,38 +56,40 @@ After DNS is live and GitHub has issued the cert:
 
 ```bash
 gh api --method PUT repos/<owner>/<repo>/pages \
-  --raw-field cname=eval-driven.dev \
+  --raw-field cname=waykit.dev \
   --raw-field https_enforced=true
 ```
 
 If GitHub shows a domain verification TXT, set it on the zone stack:
 
 ```bash
-pulumi stack select eval-driven.dev
+pulumi stack select waykit.dev
 pulumi config set githubPagesChallenge '<token from Pages settings>'
 pulumi up
 ```
 
-## Canonical host cutover
+## Canonical host cutover (`waykit.dev`)
 
-Apply **in this order**. Do not convert the old hostname to vanity in the same apply as the first `eval-driven.dev` up, or GitHub will 301/DNS-fail until the new Pages certificate exists.
+Apply **in this order**. Do not convert the old hostnames to vanity in the same apply as the first `waykit.dev` up, or GitHub will 301/DNS-fail until the new Pages certificate exists.
 
-1. Import + apply stack `eval-driven.dev` (`githubPages`). Zone ID `8b3f72e434fbb497e2b1a22c0b2737ae` already exists (Cloudflare Registrar).
-2. Copy `webAnalyticsSnippet` into the kit `web/index.html` beacon script.
-3. Set GitHub Pages `cname` to `eval-driven.dev` and wait until GitHub shows a valid HTTPS certificate.
-4. Convert the former host to vanity (`role: vanity`, `redirectTo: eval-driven.dev`). Apply the stack (CI unprotects leftover `WebAnalyticsSite` via `scripts/vanity-cutover.cjs`). CanonicalRedirect www aliases the former GitHub Pages www CNAME so Cloudflare does not see A+CNAME on `www`.
+1. Import + apply stack `waykit.dev` (`githubPages`). Zone ID `45dfea5a86a5b5834a913c13ae3a112d` already exists (Cloudflare Registrar). Use `workflow_dispatch` with `stack=waykit.dev` so other zones are not applied yet.
+2. Copy `webAnalyticsSnippet` into the kit `web/src/layouts/SiteLayout.astro` beacon script.
+3. Set GitHub Pages `cname` to `waykit.dev` and wait until GitHub shows a valid HTTPS certificate.
+4. Convert the former hosts to vanity (`role: vanity`, `redirectTo: waykit.dev`) — `eval-driven.dev` and `eval-driven-development.dev`. Apply those stacks (CI unprotects leftover `WebAnalyticsSite` via `scripts/vanity-cutover.cjs`). CanonicalRedirect www aliases the former GitHub Pages www CNAME so Cloudflare does not see A+CNAME on `www`.
 
-Locally:
+Locally, after the Pages cert is live:
 
 ```bash
-pulumi stack select eval-driven-development.dev
-pulumi stack export | node scripts/vanity-cutover.cjs eval-driven-development.dev | while read -r urn; do
-  pulumi state unprotect --yes "$urn"
+for stack in eval-driven.dev eval-driven-development.dev; do
+  pulumi stack select "$stack"
+  pulumi stack export | node scripts/vanity-cutover.cjs "$stack" | while read -r urn; do
+    pulumi state unprotect --yes "$urn"
+  done
+  pulumi up
 done
-pulumi up
 ```
 
-CI can target one stack: workflow_dispatch `stack=eval-driven.dev`, then later `stack=eval-driven-development.dev`.
+CI can target one stack: workflow_dispatch `stack=waykit.dev`, then later `stack=eval-driven.dev` and `stack=eval-driven-development.dev`.
 
 ## Token scope
 

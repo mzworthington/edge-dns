@@ -7,8 +7,8 @@
 | Type / status | `full` / `active` (Cloudflare Registrar) |
 | Name servers | `lauryn.ns.cloudflare.com`, `tosana.ns.cloudflare.com` |
 | Pulumi | `mzworthington/edge-dns/eval-driven-development.dev` |
-| Role | vanity → `eval-driven.dev` |
+| Role | vanity → `waykit.dev` |
 
-Managed: `cloudflare.Zone` (`manageSettings=false`) plus org vanity **CanonicalRedirect** → `eval-driven.dev` ([org-redirects.md](../org-redirects.md)).
+Managed: `cloudflare.Zone` (`manageSettings=false`) plus org vanity **CanonicalRedirect** → `waykit.dev` ([org-redirects.md](../org-redirects.md)).
 
-Former GitHub Pages origin DNS, Web Analytics site `ea7ffeb012004862add795dccbb3c211`, and `insights.eval-driven-development.dev` lived on this zone. Vanity apply deletes them (CI unprotects the RUM site first). Apply this stack only after GitHub Pages is serving `eval-driven.dev` with a valid certificate.
+Former GitHub Pages origin DNS, Web Analytics site `ea7ffeb012004862add795dccbb3c211`, and `insights.eval-driven-development.dev` lived on this zone. Vanity apply deletes them (CI unprotects the RUM site first). Apply this stack only after GitHub Pages is serving `waykit.dev` with a valid certificate.

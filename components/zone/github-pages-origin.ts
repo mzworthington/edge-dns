@@ -29,7 +29,7 @@ export const GITHUB_PAGES_IPV6 = [
 export interface GitHubPagesOriginArgs {
   accountId: pulumi.Input<string>;
   zoneId: pulumi.Input<string>;
-  /** Apex of this zone, e.g. `eval-driven.dev`. */
+  /** Apex of this zone, e.g. `waykit.dev`. */
   zoneName: pulumi.Input<string>;
   /** GitHub Pages default host, e.g. `mzworthington.github.io`. */
   githubIoHost: pulumi.Input<string>;

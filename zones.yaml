@@ -10,15 +10,20 @@ zones:
     role: product
     notes: ArchLens product zone
 
-  eval-driven.dev:
+  waykit.dev:
     role: product
     githubPages: mzworthington.github.io
-    notes: Agent Lifecycle Kit / EDD canonical site (GitHub Pages origin DNS + Web Analytics in this repo)
+    notes: Agent Lifecycle Kit / EDD canonical site (GitHub Pages origin DNS + Web Analytics in this repo). Import existing zone 45dfea5a86a5b5834a913c13ae3a112d before first up.
+
+  eval-driven.dev:
+    role: vanity
+    redirectTo: waykit.dev
+    notes: Former kit hostname; 301 to waykit.dev (apply after GitHub Pages CNAME + cert are on waykit.dev)
 
   eval-driven-development.dev:
     role: vanity
-    redirectTo: eval-driven.dev
-    notes: Former kit hostname; 301 to eval-driven.dev (apply after GitHub Pages CNAME + cert are on the new host)
+    redirectTo: waykit.dev
+    notes: Former kit hostname; 301 to waykit.dev (apply after GitHub Pages CNAME + cert are on waykit.dev)
 
   matthewworthington.com:
     role: vanity
