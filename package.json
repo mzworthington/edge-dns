@@ -4,6 +4,7 @@
   "packageManager": "pnpm@11.20.0",
   "main": "index.ts",
   "scripts": {
+    "prepare": "sh scripts/install-git-hooks.sh",
     "typecheck": "tsc --noEmit",
     "test": "node --test scripts/*.test.cjs",
     "zones-matrix": "node scripts/zones-matrix.cjs"
