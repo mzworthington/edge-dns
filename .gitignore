@@ -33,3 +33,10 @@ credentials.json
 Pulumi.*.yaml
 !Pulumi.yaml
 !Pulumi.stack.yaml.example
+
+# Antigravity workspace MCP (wk mcp --project / wk init)
+.agents/mcp_config.json
+
+# wk mcp backups of host MCP files
+**/*.bak.*
+
