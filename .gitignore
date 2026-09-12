@@ -2,6 +2,7 @@
 node_modules/
 .pnpm-store/
 components/**/node_modules/
+.waykit/
 
 # Builds (tsc outDir — root only; product shims may use bin/)
 /bin/
