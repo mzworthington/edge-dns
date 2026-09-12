@@ -91,9 +91,40 @@ jobs:
           STACKS="$(node scripts/zones-matrix.cjs)"
           echo "stacks=${STACKS}" >> "$GITHUB_OUTPUT"
 
+  # Dependabot and fork PRs do not receive Actions secrets. Preview without a
+  # token fails at `pulumi stack select`. Skip those jobs; fail on main.
+  secrets-ready:
+    name: Secrets
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          ready=true
+          for name in PULUMI_ACCESS_TOKEN CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_TOKEN; do
+            if [ -z "${!name}" ]; then
+              echo "::notice::$name is not available in this workflow run (common for Dependabot and fork PRs)."
+              ready=false
+            fi
+          done
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+          if [ "$ready" != true ]; then
+            if [ "${{ github.ref }}" = "refs/heads/main" ] && { [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; }; then
+              echo "::error::Pulumi secrets are required on main. Set repository (or Dependabot) secrets: PULUMI_ACCESS_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN."
+              exit 1
+            fi
+            echo "::notice::Skipping Pulumi preview/apply — secrets not available."
+          fi
+
   preview:
     name: Preview (${{ matrix.stack }})
-    needs: [matrix]
+    needs: [matrix, secrets-ready]
+    if: needs.secrets-ready.outputs.ready == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
