@@ -55,10 +55,11 @@ Zone settings baselines are off by default (`manageSettings=false`) until the AP
 
 Single workflow [`.github/workflows/pulumi.yml`](.github/workflows/pulumi.yml):
 
-1. **Matrix** — stack list from [`zones.yaml`](zones.yaml) via `scripts/zones-matrix.cjs`
-2. **Preview** — every branch (PR + push), all stacks in that matrix
-3. **Manual gate** — GitHub Environment `pulumi-prod` (required reviewers)
-4. **Apply** — `main` only, after preview succeeds and the environment is approved
+1. **Matrix** — stack list from [`zones.yaml`](zones.yaml) via `scripts/zones-matrix.cjs` (install + unit tests)
+2. **Secrets** — skip preview when `PULUMI_ACCESS_TOKEN` / Cloudflare secrets are missing (Dependabot and fork PRs). Fail on `main` if they are absent.
+3. **Preview** — every branch (PR + push), all stacks in that matrix
+4. **Manual gate** — GitHub Environment `pulumi-prod` (required reviewers)
+5. **Apply** — `main` only, after preview succeeds and the environment is approved
 
 ## Shared Cloudflare tooling (product repos)
 
