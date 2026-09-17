@@ -1,5 +1,8 @@
 # edge-dns
 
+[![CI](https://img.shields.io/github/actions/workflow/status/mzworthington/edge-dns/pulumi.yml?branch=main&style=for-the-badge&logo=github-actions&label=CI)](https://github.com/mzworthington/edge-dns/actions/workflows/pulumi.yml)
+[![Quality gate](https://img.shields.io/sonar/alert_status/mzworthington_edge-dns?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarqube)](https://sonarcloud.io/summary/new_code?id=mzworthington_edge-dns)
+
 Org Cloudflare **control plane**: zones, nameservers, DNSSEC, and shared zone baselines (TLS/WAF defaults). Also the **home** for shared Cloudflare GitHub Actions and product bootstrap scripts.
 
 Product repos that publish on Cloudflare own Pages/Workers/R2 and DNS for their hostnames. This repo does **not** create Cloudflare Pages projects. **Exception:** when `githubPages` is set in [`zones.yaml`](zones.yaml), this repo owns apex/www DNS pointing at GitHub Pages, the zone Web Analytics / RUM site, and a first-party RUM proxy Worker on `insights.<zone>` ([github-pages-origin.md](docs/github-pages-origin.md)).
