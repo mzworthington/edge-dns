@@ -15,5 +15,5 @@ if (!doc || typeof doc !== 'object' || !doc.zones || typeof doc.zones !== 'objec
   process.exit(1);
 }
 
-const stacks = Object.keys(doc.zones).sort();
+const stacks = Object.keys(doc.zones).sort((a, b) => a.localeCompare(b));
 process.stdout.write(JSON.stringify(stacks));

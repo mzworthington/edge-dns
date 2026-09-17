@@ -13,17 +13,17 @@ const rumProxyWorkerSource = fs.readFileSync(
  * https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
  */
 export const GITHUB_PAGES_IPV4 = [
-  '185.199.108.153',
-  '185.199.109.153',
-  '185.199.110.153',
-  '185.199.111.153',
+  '185.199.108.153', // NOSONAR typescript:S1313
+  '185.199.109.153', // NOSONAR typescript:S1313
+  '185.199.110.153', // NOSONAR typescript:S1313
+  '185.199.111.153', // NOSONAR typescript:S1313
 ] as const;
 
 export const GITHUB_PAGES_IPV6 = [
-  '2606:50c0:8000::153',
-  '2606:50c0:8001::153',
-  '2606:50c0:8002::153',
-  '2606:50c0:8003::153',
+  '2606:50c0:8000::153', // NOSONAR typescript:S1313
+  '2606:50c0:8001::153', // NOSONAR typescript:S1313
+  '2606:50c0:8002::153', // NOSONAR typescript:S1313
+  '2606:50c0:8003::153', // NOSONAR typescript:S1313
 ] as const;
 
 export interface GitHubPagesOriginArgs {

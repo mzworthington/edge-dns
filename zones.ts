@@ -72,7 +72,7 @@ export function loadZonesInventory(
 
 /** Stack / domain names in stable order. */
 export function listZoneStacks(filePath?: string): string[] {
-  return Object.keys(loadZonesInventory(filePath).zones).sort();
+  return Object.keys(loadZonesInventory(filePath).zones).sort((a, b) => a.localeCompare(b));
 }
 
 /**
