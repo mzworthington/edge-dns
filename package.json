@@ -13,7 +13,7 @@
     "@edge-dns/zone": "workspace:*",
     "@pulumi/cloudflare": "6.20.0",
     "@pulumi/pulumi": "3.261.0",
-    "js-yaml": "5.4.1"
+    "js-yaml": "5.4.2"
   },
   "devDependencies": {
     "@types/js-yaml": "4.0.9",
