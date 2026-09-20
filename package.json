@@ -1,23 +1,23 @@
 {
-  "name": "edge-dns",
-  "private": true,
-  "packageManager": "pnpm@11.20.0",
-  "main": "index.ts",
-  "scripts": {
-    "prepare": "sh scripts/install-git-hooks.sh",
-    "typecheck": "tsc --noEmit",
-    "test": "node --test scripts/*.test.cjs",
-    "zones-matrix": "node scripts/zones-matrix.cjs"
-  },
-  "dependencies": {
-    "@edge-dns/zone": "workspace:*",
-    "@pulumi/cloudflare": "6.20.0",
-    "@pulumi/pulumi": "3.261.0",
-    "js-yaml": "5.4.1"
-  },
-  "devDependencies": {
-    "@types/js-yaml": "4.0.9",
-    "@types/node": "22.20.2",
-    "typescript": "6.0.3"
-  }
+    "name": "edge-dns",
+    "private": true,
+    "packageManager": "pnpm@11.20.0",
+    "main": "index.ts",
+    "scripts": {
+        "prepare": "sh scripts/install-git-hooks.sh",
+        "typecheck": "tsc --noEmit",
+        "test": "node --test scripts/*.test.cjs",
+        "zones-matrix": "node scripts/zones-matrix.cjs"
+    },
+    "dependencies": {
+        "@edge-dns/zone": "workspace:*",
+        "@pulumi/cloudflare": "6.20.0",
+        "@pulumi/pulumi": "3.263.0",
+        "js-yaml": "5.4.2"
+    },
+    "devDependencies": {
+        "@types/js-yaml": "4.0.9",
+        "@types/node": "26.6.1",
+        "typescript": "6.0.3"
+    }
 }
