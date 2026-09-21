@@ -7,6 +7,7 @@ components/**/node_modules/
 # Builds (tsc outDir — root only; product shims may use bin/)
 /bin/
 dist/
+coverage/
 *.tsbuildinfo
 
 # Logs

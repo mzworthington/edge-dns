@@ -15,6 +15,7 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'components/**'
+      - 'sonar-project.properties'
       - '.github/workflows/pulumi.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
       - '.github/actions/pulumi-rich-report/**'
@@ -29,6 +30,7 @@ on:
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'components/**'
+      - 'sonar-project.properties'
       - '.github/workflows/pulumi.yml'
       - '.github/actions/setup-edge-dns-pulumi/**'
       - '.github/actions/pulumi-rich-report/**'
@@ -62,6 +64,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -83,6 +87,12 @@ jobs:
       - name: Unit tests
         shell: bash
         run: pnpm test
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Emit stacks from zones.yaml
         id: zones
