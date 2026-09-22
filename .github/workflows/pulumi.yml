@@ -88,14 +88,6 @@ jobs:
         shell: bash
         run: pnpm test
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_API_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
-        with:
-          args: -Dsonar.organization=${{ vars.SONARQUBE_ORG }}
-
       - name: Emit stacks from zones.yaml
         id: zones
         shell: bash
