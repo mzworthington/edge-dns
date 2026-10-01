@@ -12,7 +12,7 @@
     "dependencies": {
         "@edge-dns/zone": "workspace:*",
         "@pulumi/cloudflare": "6.21.0",
-        "@pulumi/pulumi": "3.263.0",
+        "@pulumi/pulumi": "3.264.0",
         "js-yaml": "5.4.2"
     },
     "devDependencies": {

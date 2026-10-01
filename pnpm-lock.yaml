@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  undici@6: 6.28.1
+  ip-address: '>=10.5.1'
+
 importers:
 
   .:
@@ -15,8 +19,8 @@ importers:
         specifier: 6.21.0
         version: 6.21.0(supports-color@7.2.0)(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.263.0
-        version: 3.263.0(supports-color@7.2.0)(typescript@6.0.3)
+        specifier: 3.264.0
+        version: 3.264.0(supports-color@7.2.0)(typescript@6.0.3)
       js-yaml:
         specifier: 5.4.2
         version: 5.4.2
@@ -40,8 +44,8 @@ importers:
         specifier: 6.21.0
         version: 6.21.0(supports-color@7.2.0)(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.263.0
-        version: 3.263.0(supports-color@7.2.0)(typescript@6.0.3)
+        specifier: 3.264.0
+        version: 3.264.0(supports-color@7.2.0)(typescript@6.0.3)
     devDependencies:
       '@types/node':
         specifier: 26.6.2
@@ -305,8 +309,8 @@ packages:
   '@pulumi/cloudflare@6.21.0':
     resolution: {integrity: sha512-IW8oBur+LcdXt2/Gv29P8TNxI7ILL+ZC2LKo8QtDcmCjQL5KFuR1A9rh0OxGEn08zPWxpMfHT6o1wZ5s0q3DIw==}
 
-  '@pulumi/pulumi@3.263.0':
-    resolution: {integrity: sha512-ZIWdlwKCSRFkUxRmISu3FT7db7Ac+Hfjh1ta3cyau+QupneuzZ+OFzezM6Var9PeNRaHNyWtSPg7Qjq8CHNzww==}
+  '@pulumi/pulumi@3.264.0':
+    resolution: {integrity: sha512-XU9xl05RwO8J7UobJXKxGcmE063GNescXjKrQnUSdvAgbKXxdnSVqcglUPwyDyRFRlGdJ6HkuN26gdR9cEzfTA==}
     engines: {node: '>=22'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -588,8 +592,8 @@ packages:
     resolution: {integrity: sha512-IBTdIkzZNOpqm7q3dRqJvMaldXjDHWkEDfrwGEQTs5eaQMWV+djAhR+wahyNNMAa+qpbDUhBMVt4ZKNwpPm7xQ==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  ip-address@10.4.0:
-    resolution: {integrity: sha512-oSK96Grm3aP6OrS263xVxbNDGVL7rzBtYdpGqlDG8iQdoenDoTs/nkki+DflYbAEE8Xl6o5YxhxlrKvI3nqKXQ==}
+  ip-address@10.7.2:
+    resolution: {integrity: sha512-7H/2gFSIitxc0hG3nOI1glS8QLo/EHBFFLk8vEUjXY/xu0AdL8jZ9U1IzO2PUm0d2D/ofQcAifb0g6OBkt8U7w==}
     engines: {node: '>= 12'}
 
   is-fullwidth-code-point@3.0.0:
@@ -971,8 +975,8 @@ packages:
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
-  undici@6.28.0:
-    resolution: {integrity: sha512-LIY910g9TI13YS95lrMFrs8Rm/u/irgHeTWoKCoteeJ04CUJ92eEfj0rVn+7VKMPBpUPiUoBKfhNyLI23EE/KA==}
+  undici@6.28.1:
+    resolution: {integrity: sha512-zWpdTVD54H48CIybL0rWQ3ukpb9d23wM7eH5RtfdmeP70cWHNjtfo7P4vZX+5CoDcO53J4Pu5uXp7lNfjc6DRA==}
     engines: {node: '>=18.17'}
 
   upath@1.2.0:
@@ -1364,13 +1368,13 @@ snapshots:
 
   '@pulumi/cloudflare@6.21.0(supports-color@7.2.0)(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.263.0(supports-color@7.2.0)(typescript@6.0.3)
+      '@pulumi/pulumi': 3.264.0(supports-color@7.2.0)(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.263.0(supports-color@7.2.0)(typescript@6.0.3)':
+  '@pulumi/pulumi@3.264.0(supports-color@7.2.0)(typescript@6.0.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.4
       '@logdna/tail-file': 2.2.0
@@ -1661,7 +1665,7 @@ snapshots:
 
   ini@6.0.0: {}
 
-  ip-address@10.4.0: {}
+  ip-address@10.7.2: {}
 
   is-fullwidth-code-point@3.0.0: {}
 
@@ -1795,7 +1799,7 @@ snapshots:
       semver: 7.8.5
       tar: 7.5.22
       tinyglobby: 0.2.17
-      undici: 6.28.0
+      undici: 6.28.1
       which: 6.0.1
 
   nopt@9.0.0:
@@ -1985,7 +1989,7 @@ snapshots:
 
   socks@2.8.9:
     dependencies:
-      ip-address: 10.4.0
+      ip-address: 10.7.2
       smart-buffer: 4.2.0
 
   source-map-support@0.5.21:
@@ -2082,7 +2086,7 @@ snapshots:
 
   undici-types@8.9.0: {}
 
-  undici@6.28.0: {}
+  undici@6.28.1: {}
 
   upath@1.2.0: {}
 
