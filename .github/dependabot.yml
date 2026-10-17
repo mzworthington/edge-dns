@@ -1,17 +1,46 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: /
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: weekly
-      day: sunday
-      time: '00:00'
-    open-pull-requests-limit: 10
-
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-      day: sunday
-      time: '00:00'
+      interval: "weekly"
+      day: "sunday"
+      time: "00:00"
     open-pull-requests-limit: 5
+    # Direct deps only. Transitive security fixes otherwise land as
+    # lockfile-only PRs (pnpm-lock.yaml with no package.json change).
+    allow:
+      - dependency-type: "direct"
+    # Always raise the manifest constraint so the lockfile never moves alone.
+    versioning-strategy: "increase"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      npm-security:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+      npm-minor-patch:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "00:00"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      actions:
+        patterns:
+          - "*"
