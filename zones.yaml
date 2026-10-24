@@ -39,7 +39,7 @@ zones:
 
   romini.party:
     role: product
-    notes: RoMini story box. Zone lifecycle here; hostname DNS stays in the RoMini repo.
+    notes: RoMini public site. Zone only here; apex and demo hostnames live in the RoMini repo.
 
   # --- GoDaddy onboarding (registrar stays at GoDaddy until NS cutover) ---
   # Out of scope this batch: siliconpanda.com / .co.uk (Google Workspace mail) — see TODO below.
@@ -88,8 +88,6 @@ zones:
   feed-replay.co.uk:
     role: vanity
     redirectTo: mzworthington.co.uk
-
-    
 
   # TODO: Come in after bulk transfer
   # siliconpanda.com:
