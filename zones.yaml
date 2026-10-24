@@ -39,7 +39,7 @@ zones:
 
   romini.party:
     role: product
-    notes: RoMini public site. Zone only here; apex and demo hostnames live in the RoMini repo.
+    notes: RoMini public site. Zone only here; the landing page is deployed from the RoMini repo.
 
   # --- GoDaddy onboarding (registrar stays at GoDaddy until NS cutover) ---
   # Out of scope this batch: siliconpanda.com / .co.uk (Google Workspace mail) — see TODO below.
