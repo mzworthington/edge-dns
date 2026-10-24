@@ -35,7 +35,11 @@ zones:
 
   mzworthington.co.uk:
     role: product
-    notes: Personal / blog 
+    notes: Personal / blog
+
+  romini.party:
+    role: product
+    notes: RoMini story box. Zone lifecycle here; hostname DNS stays in the RoMini repo.
 
   # --- GoDaddy onboarding (registrar stays at GoDaddy until NS cutover) ---
   # Out of scope this batch: siliconpanda.com / .co.uk (Google Workspace mail) — see TODO below.

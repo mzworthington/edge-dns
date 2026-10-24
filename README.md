@@ -37,6 +37,7 @@ Declared in [`zones.yaml`](zones.yaml) (source of truth; CI matrix + vanity redi
 | `matthewworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.com` | vanity → `mzworthington.co.uk` ([org-redirects](docs/org-redirects.md)) |
 | `mzworthington.co.uk` | product — personal / blog (DNS/Pages in mzworthington repo) |
+| `romini.party` | product — RoMini (zone here; hostname DNS in the RoMini repo) |
 | *(GoDaddy onboard)* | see `zones.yaml` (`siliconpanda.*` deferred — Workspace mail) |
 
 Fully qualified: `mzworthington/edge-dns/<domain>`.
