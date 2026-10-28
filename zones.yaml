@@ -5,6 +5,7 @@
 #             unless githubPages is set (this repo owns GitHub Pages origin DNS)
 # role: vanity  — org redirect only; requires redirectTo (canonical host, no scheme)
 
+accountId: fe0bb0a89551958509fe4d65883026cc
 zones:
   archlens.dev:
     role: product

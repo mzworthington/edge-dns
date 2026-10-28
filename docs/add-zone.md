@@ -2,7 +2,7 @@
 
 1. Domain registered; nameservers can be pointed at Cloudflare.
 2. Add the domain to [`zones.yaml`](../zones.yaml) (`role: product`, optional `githubPages`, or `role: vanity` + `redirectTo`). CI preview/apply matrices are generated from this file.
-3. `pulumi stack init <domain>` then set `accountId`, `zoneName` (= domain), `cloudflare:apiToken`.
+3. `pulumi stack init <domain>`. The stack name is the zone name. `accountId` is the top-level value in [`zones.yaml`](../zones.yaml). Export `CLOUDFLARE_API_TOKEN` (and `PULUMI_ACCESS_TOKEN` for Pulumi Cloud). Do not `pulumi config set` the token.
 4. **Existing zone:** select **that domain's stack first**, then `pulumi import 'cloudflare:index/zone:Zone' <slug>-zone <zone_id>` then `pulumi up` so the `ManagedZone` parent settles (preview must show no zone recreate/destroy). Importing into another stack leaves a protected zone in the wrong state and CI preview fails.
 
 ### Stray zone in the wrong stack
@@ -24,10 +24,9 @@ Registrar can stay at GoDaddy. This repo only creates Cloudflare zones.
 
 1. Add domains to [`zones.yaml`](../zones.yaml) (`role: product`, or `role: vanity` + `redirectTo`). CI matrix is generated from this file.
 2. For mail domains (e.g. Google Workspace on `siliconpanda.com`): copy MX/SPF/DKIM/DMARC into Cloudflare **before** changing nameservers.
-3. Bootstrap stacks (init + config; optional preview/up + print NS):
+3. Bootstrap stacks (init; optional preview/up + print NS):
 
 ```bash
-export CLOUDFLARE_ACCOUNT_ID=…
 export CLOUDFLARE_API_TOKEN=…
 export PULUMI_ACCESS_TOKEN=…   # if using Pulumi Cloud
 ./scripts/bootstrap-zones.sh --init-only --only-new

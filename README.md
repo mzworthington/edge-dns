@@ -46,12 +46,13 @@ Fully qualified: `mzworthington/edge-dns/<domain>`.
 
 ```bash
 pnpm install
+export CLOUDFLARE_API_TOKEN=…   # Bitwarden project Worthington, or `bws run`
+export PULUMI_ACCESS_TOKEN=…
 pulumi stack select archlens.dev   # or init
-pulumi config set accountId …
-pulumi config set zoneName archlens.dev
-pulumi config set --secret cloudflare:apiToken …
 pulumi preview
 ```
+
+`accountId` lives in [`zones.yaml`](zones.yaml). The stack name is the zone name. Do not `pulumi config set` the API token.
 
 Zone settings baselines are off by default (`manageSettings=false`) until the API token has Zone Settings Read/Write. See [docs/baselines/](docs/baselines/).
 
@@ -60,7 +61,7 @@ Zone settings baselines are off by default (`manageSettings=false`) until the AP
 Single workflow [`.github/workflows/pulumi.yml`](.github/workflows/pulumi.yml):
 
 1. **Matrix** — stack list from [`zones.yaml`](zones.yaml) via `scripts/zones-matrix.cjs` (install + unit tests)
-2. **Secrets** — skip preview when `PULUMI_ACCESS_TOKEN` / Cloudflare secrets are missing (Dependabot and fork PRs). Fail on `main` if they are absent.
+2. **Secrets** — skip preview when `PULUMI_ACCESS_TOKEN` or `CLOUDFLARE_API_TOKEN` is missing (Dependabot and fork PRs). Fail on `main` if either is absent.
 3. **Preview** — every branch (PR + push), all stacks in that matrix
 4. **Manual gate** — GitHub Environment `pulumi-prod` (required reviewers)
 5. **Apply** — `main` only, after preview succeeds and the environment is approved

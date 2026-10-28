@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Init Pulumi stacks + config for domains in zones.yaml (or CLI args).
+# Init Pulumi stacks for domains in zones.yaml (or CLI args).
 # Optionally preview/up and print Cloudflare nameservers for GoDaddy NS cutover.
 #
 # Prerequisites:
 #   - pulumi, pnpm (deps installed; js-yaml available for zones-matrix.cjs)
-#   - CLOUDFLARE_ACCOUNT_ID
+#   - accountId in zones.yaml
 #   - CLOUDFLARE_API_TOKEN (Zone Read/Write; + DNS/Redirect Edit if vanity)
 #   - PULUMI_ACCESS_TOKEN (when using Pulumi Cloud)
 #
@@ -62,8 +62,8 @@ if [[ ${#DOMAINS[@]} -eq 0 ]]; then
   done < <(node scripts/zones-matrix.cjs | jq -r '.[]')
 fi
 
-if [[ -z "${CLOUDFLARE_ACCOUNT_ID:-}" || -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
-  echo "Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN" >&2
+if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+  echo "Set CLOUDFLARE_API_TOKEN" >&2
   exit 1
 fi
 
@@ -91,10 +91,6 @@ ensure_stack() {
     echo "==> stack init: $domain"
     run pulumi stack init "$domain"
   fi
-
-  run pulumi config set accountId "$CLOUDFLARE_ACCOUNT_ID" --stack "$domain"
-  run pulumi config set zoneName "$domain" --stack "$domain"
-  run pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN" --stack "$domain"
 }
 
 print_ns() {

@@ -6,7 +6,7 @@ import {
   type ZoneBaselineSetting,
 } from '@edge-dns/zone';
 import {
-  assertStackOwnsZone,
+  edgeStackSettings,
   inventoryCanonicalRedirectTo,
   inventoryGithubPagesHost,
   legacyGithubPagesWwwRecordUrn,
@@ -14,9 +14,7 @@ import {
 } from './zones';
 
 const config = new pulumi.Config();
-const accountId = config.require('accountId');
-const zoneName = config.require('zoneName');
-assertStackOwnsZone(pulumi.getStack(), zoneName);
+const { accountId, zoneName, manageSettings } = edgeStackSettings(pulumi.getStack());
 const zoneType = config.get('zoneType') as
   | 'full'
   | 'partial'
@@ -26,12 +24,6 @@ const zoneType = config.get('zoneType') as
 
 /** Logical resource name: archlens.dev → archlens-dev */
 const zoneSlug = slugifyZone(zoneName);
-
-/**
- * When true, manage baseline ZoneSettings (needs Zone Settings Read/Write on the API token).
- * Default false: product tokens often have DNS/Pages only; zone import still works.
- */
-const manageSettings = config.getBoolean('manageSettings') ?? false;
 
 /** Optional override; otherwise vanity `redirectTo` from zones.yaml for this zoneName. */
 const canonicalRedirectTo =

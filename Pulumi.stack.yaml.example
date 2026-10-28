@@ -1,13 +1,14 @@
-# Stacks are named after the zone (e.g. archlens.dev). Config is set per stack in CI / locally.
-# Example (do not commit real tokens):
+# Stacks are named after the zone (e.g. archlens.dev).
+# accountId and optional manageSettings live in zones.yaml.
+# CLOUDFLARE_API_TOKEN comes from the environment, not from stack config.
 #
+#   export CLOUDFLARE_API_TOKEN=…
+#   export PULUMI_ACCESS_TOKEN=…
 #   pulumi stack init archlens.dev
-#   pulumi config set accountId <id>
-#   pulumi config set zoneName archlens.dev
-#   pulumi config set manageSettings false
-#   pulumi config set --secret cloudflare:apiToken <token>
+#   pulumi preview
 #
-# Optional when manageSettings=true:
+# Optional overrides (defaults live in index.ts; manageSettings must be true
+# in zones.yaml before TLS settings apply):
 #   pulumi config set ssl full
 #   pulumi config set alwaysUseHttps on
 #   pulumi config set minTlsVersion 1.2

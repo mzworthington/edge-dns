@@ -14,10 +14,8 @@ Managed: `cloudflare.Zone` + GitHub Pages origin DNS + Web Analytics / RUM (`man
 Product custom domain: [github-pages-origin.md](../github-pages-origin.md). Import this existing registrar zone; do not create a second zone.
 
 ```bash
-pulumi stack init waykit.dev
-pulumi config set accountId fe0bb0a89551958509fe4d65883026cc
-pulumi config set zoneName waykit.dev
-pulumi stack select waykit.dev
+export CLOUDFLARE_API_TOKEN=…
+pulumi stack select waykit.dev   # or init; accountId is in zones.yaml
 pulumi import --yes --generate-code=false \
   'cloudflare:index/zone:Zone' waykit-dev-zone \
   45dfea5a86a5b5834a913c13ae3a112d

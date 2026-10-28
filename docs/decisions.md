@@ -28,6 +28,14 @@
 
 **Not chosen:** Encoding inventory only in TypeScript (harder to scan); putting org inventory in per-stack `Pulumi.<stack>.yaml` (secrets/config, wrong layer).
 
+## Edge config and the API token
+
+**Chosen:** [`zones.yaml`](../zones.yaml) holds the Cloudflare `accountId` and an optional per-zone `manageSettings` (set it only when true). The Pulumi stack name is the zone name. `CLOUDFLARE_API_TOKEN` is an environment variable. Bitwarden is the human copy; `scripts/sync-cloudflare-api-token.sh` copies it to GitHub Actions. Preview and apply receive that env var. They do not write it, the account id, or the zone name into Pulumi stack config.
+
+**Why:** Stack YAML was gitignored so the public repo stayed clean, which left the only complete copy split between one laptop and Pulumi Cloud. The inventory file is already the zone list. The token stays out of git and out of stack config.
+
+**Not chosen:** A private git repo of `Pulumi.<zone>.yaml`; Pulumi ESC as a second secret store; `pulumi config set --secret cloudflare:apiToken` on every CI run.
+
 ## Shared Cloudflare CI / bootstrap home
 
 **Chosen:** Reusable GitHub Actions, the product Pulumi workflow, and `scripts/setup-cloudflare-hosting.sh` live in `edge-dns`. Product repos keep thin callers/shims only ([examples/product-cloudflare/](../examples/product-cloudflare/)).

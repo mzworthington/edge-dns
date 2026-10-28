@@ -14,10 +14,12 @@ export interface ZoneEntry {
    * When set on a product zone, this repo owns apex/www DNS to that origin.
    */
   githubPages?: string;
+  manageSettings?: boolean;
   notes?: string;
 }
 
 export interface ZonesInventory {
+  accountId: string;
   zones: Record<string, ZoneEntry>;
 }
 
@@ -30,7 +32,12 @@ function assertInventory(doc: unknown): ZonesInventory {
   if (!doc || typeof doc !== 'object' || !('zones' in doc)) {
     throw new Error('zones.yaml: missing top-level `zones` map');
   }
-  const zones = (doc as ZonesInventory).zones;
+  const record = doc as { accountId?: unknown; zones?: unknown };
+  const accountId = record.accountId;
+  if (typeof accountId !== 'string' || accountId.trim() === '') {
+    throw new Error('zones.yaml: missing top-level `accountId`');
+  }
+  const zones = record.zones as ZonesInventory['zones'];
   if (!zones || typeof zones !== 'object' || Array.isArray(zones)) {
     throw new Error('zones.yaml: `zones` must be a map of domain → entry');
   }
@@ -59,7 +66,7 @@ function assertInventory(doc: unknown): ZonesInventory {
     }
   }
 
-  return { zones };
+  return { accountId, zones };
 }
 
 /** Load and validate the zone inventory. */
@@ -75,23 +82,29 @@ export function listZoneStacks(filePath?: string): string[] {
   return Object.keys(loadZonesInventory(filePath).zones).sort((a, b) => a.localeCompare(b));
 }
 
-/**
- * One stack per zone: the selected Pulumi stack name must equal `zoneName`.
- * Prevents applying zone A while stack B is selected.
- */
-export function assertStackOwnsZone(stack: string, zoneName: string): void {
-  if (stack !== zoneName) {
-    throw new Error(
-      `Stack "${stack}" must manage zone "${stack}" (zoneName is "${zoneName}"). ` +
-        `Select the matching Pulumi stack — one stack per zone.`,
-    );
+export function inventoryManageSettings(zoneName: string, filePath?: string): boolean {
+  const entry = loadZonesInventory(filePath).zones[zoneName];
+  if (!entry) {
+    throw new Error(`zones.yaml: unknown zone ${zoneName}`);
   }
+  return entry.manageSettings === true;
 }
 
-/**
- * Canonical redirect target for a zone from inventory (vanity only).
- * Undefined when the zone is product-owned or unknown.
- */
+export interface EdgeStackSettings {
+  accountId: string;
+  zoneName: string;
+  manageSettings: boolean;
+}
+
+export function edgeStackSettings(stack: string, filePath?: string): EdgeStackSettings {
+  const inventory = loadZonesInventory(filePath);
+  return {
+    accountId: inventory.accountId,
+    zoneName: stack,
+    manageSettings: inventoryManageSettings(stack, filePath),
+  };
+}
+
 export function inventoryCanonicalRedirectTo(
   zoneName: string,
   filePath?: string,
