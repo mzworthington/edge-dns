@@ -5,7 +5,7 @@ name: Pulumi Cloudflare
 #
 # Create GitHub Environment "pulumi-prod" with required reviewers for the apply gate.
 # Secrets: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_TOKEN, PULUMI_ACCESS_TOKEN
-# Vars:    PULUMI_PAGES_PROJECT_NAME, PULUMI_PAGES_HOSTNAMES (JSON array)
+# Pages project name and hostnames: infra/cloudflare/hosting.yaml when that file exists
 # Optional vars for ArchLens-shaped stacks:
 #   PULUMI_APEX_DOMAIN, PULUMI_WWW_DOMAIN, PULUMI_CATALOG_BUCKET_NAME, PULUMI_CATALOG_DOMAIN
 #
