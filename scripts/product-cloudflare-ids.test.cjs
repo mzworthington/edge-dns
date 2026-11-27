@@ -45,6 +45,15 @@ describe('committed Cloudflare ids', () => {
     assert.equal(parsed.zoneId, YUSUR_ZONE);
   });
 
+  it('treats template placeholders as absent so secrets can still bootstrap a new repo', () => {
+    assert.equal(
+      parseHostingIds(
+        'accountId: YOUR_CLOUDFLARE_ACCOUNT_ID\nzoneId: YOUR_CLOUDFLARE_ZONE_ID\n',
+      ),
+      null,
+    );
+  });
+
   it('treats a hosting file without ids as absent', () => {
     assert.equal(
       parseHostingIds('pagesProjectName: yusur\npagesHostnames:\n  - yusur.co.uk\n'),

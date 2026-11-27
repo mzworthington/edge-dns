@@ -102,11 +102,17 @@ runs:
         pulumi config set zoneId "$zone_id"
         pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"
 
-        if [[ -n "${PULUMI_PAGES_PROJECT_NAME:-}" ]]; then
-          pulumi config set pagesProjectName "$PULUMI_PAGES_PROJECT_NAME"
-        fi
-        if [[ -n "${PULUMI_PAGES_HOSTNAMES:-}" ]]; then
-          pulumi config set pagesHostnames "$PULUMI_PAGES_HOSTNAMES" --plaintext
+        # Product repos commit Pages name and hostnames in hosting.yaml.
+        # Do not let GitHub variables overwrite that file's stack.
+        if [[ -f hosting.yaml ]]; then
+          echo "Pages project and hostnames come from hosting.yaml"
+        else
+          if [[ -n "${PULUMI_PAGES_PROJECT_NAME:-}" ]]; then
+            pulumi config set pagesProjectName "$PULUMI_PAGES_PROJECT_NAME"
+          fi
+          if [[ -n "${PULUMI_PAGES_HOSTNAMES:-}" ]]; then
+            pulumi config set pagesHostnames "$PULUMI_PAGES_HOSTNAMES" --plaintext
+          fi
         fi
         if [[ -n "${PULUMI_APEX_DOMAIN:-}" ]]; then
           pulumi config set apexDomain "$PULUMI_APEX_DOMAIN"

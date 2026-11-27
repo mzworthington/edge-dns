@@ -45,18 +45,20 @@ function parseHostingIds(source) {
     }
   }
 
-  const hasAccount = Object.prototype.hasOwnProperty.call(found, 'accountId');
-  const hasZone = Object.prototype.hasOwnProperty.call(found, 'zoneId');
-  if (!hasAccount && !hasZone) return null;
-  if (!hasAccount || !hasZone) {
+  const accountId = found.accountId ?? '';
+  const zoneId = found.zoneId ?? '';
+  const accountCommitted = accountId !== '' && !accountId.startsWith('YOUR_');
+  const zoneCommitted = zoneId !== '' && !zoneId.startsWith('YOUR_');
+  if (!accountCommitted && !zoneCommitted) return null;
+  if (!accountCommitted || !zoneCommitted) {
     throw new Error('hosting.yaml must commit both accountId and zoneId');
   }
-  if (!HEX_ID.test(found.accountId) || !HEX_ID.test(found.zoneId)) {
+  if (!HEX_ID.test(accountId) || !HEX_ID.test(zoneId)) {
     throw new Error('hosting.yaml accountId and zoneId must be 32-character hex ids');
   }
   return {
-    accountId: found.accountId,
-    zoneId: found.zoneId,
+    accountId,
+    zoneId,
     zoneName: found.zoneName ?? '',
   };
 }

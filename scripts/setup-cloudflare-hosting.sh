@@ -47,34 +47,39 @@ fi
 
 : "${PULUMI_STACK:?Set PULUMI_STACK (Pulumi stack name); see .env.example}"
 : "${DOMAIN:?Set DOMAIN (existing Cloudflare zone name, e.g. example.com)}"
-: "${PAGES_PROJECT_NAME:?Set PAGES_PROJECT_NAME}"
 
 WORK_DIR="${WORK_DIR:-infra/cloudflare}"
 STACK="${PULUMI_STACK}"
+HOSTING_FILE="${ROOT}/${WORK_DIR}/hosting.yaml"
 
-# Hostname modes:
-# 1) PAGES_HOSTNAMES — modern JSON array config (react-cloudflare-template)
-# 2) WWW_DOMAIN — legacy apex + www (ArchLens); also implies apexDomain/wwwDomain
-if [[ -z "${PAGES_HOSTNAMES:-}" && -n "${WWW_DOMAIN:-}" ]]; then
-  PAGES_HOSTNAMES="${DOMAIN},${WWW_DOMAIN}"
-fi
-: "${PAGES_HOSTNAMES:?Set PAGES_HOSTNAMES (subdomains) or WWW_DOMAIN (legacy apex+www)}"
-
-IFS=',' read -r -a HOSTNAME_ARRAY <<< "$PAGES_HOSTNAMES"
-
-PAGES_HOSTNAMES_JSON='['
-for i in "${!HOSTNAME_ARRAY[@]}"; do
-  h="$(echo "${HOSTNAME_ARRAY[$i]}" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
-  [[ -n "$h" ]] || continue
-  if [[ "$PAGES_HOSTNAMES_JSON" != '[' ]]; then
-    PAGES_HOSTNAMES_JSON+=', '
+# hosting.yaml is the Pages project and hostname source when a product commits it.
+# Older stacks still pass PAGES_PROJECT_NAME / PAGES_HOSTNAMES (or WWW_DOMAIN).
+if [[ ! -f "$HOSTING_FILE" ]]; then
+  : "${PAGES_PROJECT_NAME:?Set PAGES_PROJECT_NAME}"
+  if [[ -z "${PAGES_HOSTNAMES:-}" && -n "${WWW_DOMAIN:-}" ]]; then
+    PAGES_HOSTNAMES="${DOMAIN},${WWW_DOMAIN}"
   fi
-  PAGES_HOSTNAMES_JSON+="\"${h}\""
-done
-PAGES_HOSTNAMES_JSON+=']'
-if [[ "$PAGES_HOSTNAMES_JSON" == '[]' ]]; then
-  echo "PAGES_HOSTNAMES produced an empty hostname list" >&2
-  exit 1
+  : "${PAGES_HOSTNAMES:?Set PAGES_HOSTNAMES (subdomains) or WWW_DOMAIN (legacy apex+www)}"
+fi
+
+PAGES_HOSTNAMES_JSON='[]'
+if [[ ! -f "$HOSTING_FILE" ]]; then
+  IFS=',' read -r -a HOSTNAME_ARRAY <<< "$PAGES_HOSTNAMES"
+
+  PAGES_HOSTNAMES_JSON='['
+  for i in "${!HOSTNAME_ARRAY[@]}"; do
+    h="$(echo "${HOSTNAME_ARRAY[$i]}" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
+    [[ -n "$h" ]] || continue
+    if [[ "$PAGES_HOSTNAMES_JSON" != '[' ]]; then
+      PAGES_HOSTNAMES_JSON+=', '
+    fi
+    PAGES_HOSTNAMES_JSON+="\"${h}\""
+  done
+  PAGES_HOSTNAMES_JSON+=']'
+  if [[ "$PAGES_HOSTNAMES_JSON" == '[]' ]]; then
+    echo "PAGES_HOSTNAMES produced an empty hostname list" >&2
+    exit 1
+  fi
 fi
 
 USE_CATALOG=0
@@ -98,7 +103,8 @@ if [[ -n "${BWS_ACCESS_TOKEN:-}" && -n "${BWS_PROJECT_ID:-}" ]]; then
   USE_BWS=1
 fi
 
-export ROOT DOMAIN STACK PAGES_PROJECT_NAME PAGES_HOSTNAMES_JSON USE_BWS USE_CATALOG WORK_DIR
+export ROOT DOMAIN STACK PAGES_HOSTNAMES_JSON USE_BWS USE_CATALOG WORK_DIR HOSTING_FILE
+export PAGES_PROJECT_NAME="${PAGES_PROJECT_NAME:-}"
 export PAGES_HOSTNAMES="${PAGES_HOSTNAMES:-}"
 export WWW_DOMAIN="${WWW_DOMAIN:-}"
 export CATALOG_BUCKET_NAME="${CATALOG_BUCKET_NAME:-}"
@@ -314,8 +320,12 @@ else
   printf '%s' "$CLOUDFLARE_ZONE_ID" | gh secret set CLOUDFLARE_ZONE_ID
 fi
 printf '%s' "$PULUMI_ACCESS_TOKEN" | gh secret set PULUMI_ACCESS_TOKEN
-gh variable set PULUMI_PAGES_PROJECT_NAME --body "$PAGES_PROJECT_NAME"
-gh variable set PULUMI_PAGES_HOSTNAMES --body "$PAGES_HOSTNAMES_JSON"
+if [[ -f "$HOSTING_FILE" ]]; then
+  echo "→ Pages project and hostnames stay in ${WORK_DIR}/hosting.yaml"
+else
+  gh variable set PULUMI_PAGES_PROJECT_NAME --body "$PAGES_PROJECT_NAME"
+  gh variable set PULUMI_PAGES_HOSTNAMES --body "$PAGES_HOSTNAMES_JSON"
+fi
 
 if [[ -n "${WWW_DOMAIN:-}" ]]; then
   gh variable set PULUMI_APEX_DOMAIN --body "$DOMAIN"
@@ -336,8 +346,10 @@ pnpm install --frozen-lockfile
 pulumi stack select "${STACK}" 2>/dev/null || pulumi stack init "${STACK}"
 pulumi config set accountId "$CLOUDFLARE_ACCOUNT_ID"
 pulumi config set zoneId "$CLOUDFLARE_ZONE_ID"
-pulumi config set pagesProjectName "$PAGES_PROJECT_NAME"
-pulumi config set pagesHostnames "$PAGES_HOSTNAMES_JSON" --plaintext
+if [[ ! -f hosting.yaml ]]; then
+  pulumi config set pagesProjectName "$PAGES_PROJECT_NAME"
+  pulumi config set pagesHostnames "$PAGES_HOSTNAMES_JSON" --plaintext
+fi
 pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"
 
 # Legacy ArchLens-shaped stacks still read apex/www/catalog keys.
@@ -351,8 +363,12 @@ if [[ "${USE_CATALOG:-0}" == "1" ]]; then
 fi
 
 echo "Done. Run 'cd ${WORK_DIR} && pulumi up' or merge to main (CI runs pulumi + deploy)."
-echo "Pages project: ${PAGES_PROJECT_NAME}"
-echo "Hostnames:     ${PAGES_HOSTNAMES_JSON}"
-echo "Also:          https://${PAGES_PROJECT_NAME}.pages.dev after first Pages deploy."
+if [[ -f "$HOSTING_FILE" ]]; then
+  echo "Pages project and hostnames: ${WORK_DIR}/hosting.yaml"
+else
+  echo "Pages project: ${PAGES_PROJECT_NAME}"
+  echo "Hostnames:     ${PAGES_HOSTNAMES_JSON}"
+  echo "Also:          https://${PAGES_PROJECT_NAME}.pages.dev after first Pages deploy."
+fi
 echo "Zone owner:    mzworthington/edge-dns (do not create zones from product CI)."
 EOF
