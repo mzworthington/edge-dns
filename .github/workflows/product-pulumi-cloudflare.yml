@@ -128,7 +128,8 @@ jobs:
 
       - id: ids
         run: |
-          result="$(node .edge-dns-tooling/.github/actions/setup-pulumi-cloudflare/read-hosting-ids.cjs "${{ inputs.work-dir }}/hosting.yaml")"
+          root="$(pwd)"
+          result="$(cd "${{ inputs.work-dir }}" && node "$root/.edge-dns-tooling/.github/actions/setup-pulumi-cloudflare/read-hosting-ids.cjs")"
           mode="$(printf '%s\n' "$result" | awk 'NR==1 { print; exit }')"
           if [ "$mode" = "committed" ]; then
             echo "ids-committed=true" >> "$GITHUB_OUTPUT"

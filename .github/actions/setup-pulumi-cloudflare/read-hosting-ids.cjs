@@ -2,6 +2,9 @@
 /**
  * Read Cloudflare account and zone ids committed in a product hosting.yaml.
  *
+ * Reads hosting.yaml in the current directory. No path argument: callers cd
+ * to the product work directory first.
+ *
  * stdout:
  *   absent
  *   committed\n<accountId>\n<zoneId>
@@ -79,23 +82,14 @@ function resolveCloudflareIds(input) {
   return { source: 'env', accountId, zoneId, zoneName: '' };
 }
 
-function readHostingIdsFile(filePath) {
-  if (!fs.existsSync(filePath)) return null;
-  return parseHostingIds(fs.readFileSync(filePath, 'utf8'));
-}
+const HOSTING_FILE = 'hosting.yaml';
 
-function main(argv) {
-  const file = argv[2];
-  if (!file) {
-    return {
-      exitCode: 2,
-      stderr: 'Usage: read-hosting-ids.cjs <hosting.yaml>\n',
-      stdout: '',
-    };
-  }
+function main() {
   let committed;
   try {
-    committed = readHostingIdsFile(file);
+    committed = fs.existsSync(HOSTING_FILE)
+      ? parseHostingIds(fs.readFileSync(HOSTING_FILE, 'utf8'))
+      : null;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { exitCode: 1, stderr: `${message}\n`, stdout: '' };
@@ -113,12 +107,11 @@ function main(argv) {
 module.exports = {
   parseHostingIds,
   resolveCloudflareIds,
-  readHostingIdsFile,
   main,
 };
 
 if (require.main === module) {
-  const result = main(process.argv);
+  const result = main();
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
   process.exit(result.exitCode);

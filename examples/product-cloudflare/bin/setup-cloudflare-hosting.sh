@@ -14,9 +14,9 @@ cd "$PRODUCT_ROOT"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
-curl -fsSL "${BASE_URL}/scripts/setup-cloudflare-hosting.sh" -o "${tmpdir}/setup-cloudflare-hosting.sh"
+curl --proto '=https' --tlsv1.2 -fsSL "${BASE_URL}/scripts/setup-cloudflare-hosting.sh" -o "${tmpdir}/setup-cloudflare-hosting.sh"
 # Older edge-dns refs have no helper. The script requires it once hosting.yaml exists.
-if ! curl -fsSL "${BASE_URL}/scripts/upsert-hosting-ids.cjs" -o "${tmpdir}/upsert-hosting-ids.cjs"; then
+if ! curl --proto '=https' --tlsv1.2 -fsSL "${BASE_URL}/scripts/upsert-hosting-ids.cjs" -o "${tmpdir}/upsert-hosting-ids.cjs"; then
   rm -f "${tmpdir}/upsert-hosting-ids.cjs"
 fi
 bash "${tmpdir}/setup-cloudflare-hosting.sh" "$@"

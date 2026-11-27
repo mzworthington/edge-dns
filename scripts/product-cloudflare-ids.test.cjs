@@ -97,18 +97,24 @@ describe('committed Cloudflare ids', () => {
 
   it('prints committed ids for the action, and absent when the file has none', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cf-ids-'));
-    const file = path.join(dir, 'hosting.yaml');
-    fs.writeFileSync(file, YUSUR_HOSTING);
-    const committed = readMain(['node', 'read-hosting-ids.cjs', file]);
-    assert.equal(committed.exitCode, 0);
-    assert.equal(committed.stdout, `committed\n${YUSUR_ACCOUNT}\n${YUSUR_ZONE}\n`);
+    const previous = process.cwd();
+    process.chdir(dir);
+    try {
+      fs.writeFileSync('hosting.yaml', YUSUR_HOSTING);
+      const committed = readMain();
+      assert.equal(committed.exitCode, 0);
+      assert.equal(committed.stdout, `committed\n${YUSUR_ACCOUNT}\n${YUSUR_ZONE}\n`);
 
-    fs.writeFileSync(file, 'pagesProjectName: legacy\n');
-    const absent = readMain(['node', 'read-hosting-ids.cjs', file]);
-    assert.equal(absent.stdout, 'absent\n');
+      fs.writeFileSync('hosting.yaml', 'pagesProjectName: legacy\n');
+      const absent = readMain();
+      assert.equal(absent.stdout, 'absent\n');
 
-    const missing = readMain(['node', 'read-hosting-ids.cjs', path.join(dir, 'nope.yaml')]);
-    assert.equal(missing.stdout, 'absent\n');
+      fs.rmSync('hosting.yaml');
+      const missing = readMain();
+      assert.equal(missing.stdout, 'absent\n');
+    } finally {
+      process.chdir(previous);
+    }
   });
 });
 

@@ -77,7 +77,7 @@ runs:
 
         : "${CLOUDFLARE_API_TOKEN:?Set CLOUDFLARE_API_TOKEN}"
 
-        if ! hosting_ids_raw="$(node "${GITHUB_ACTION_PATH}/read-hosting-ids.cjs" hosting.yaml)"; then
+        if ! hosting_ids_raw="$(node "${GITHUB_ACTION_PATH}/read-hosting-ids.cjs")"; then
           exit 1
         fi
         ids_mode="$(printf '%s\n' "$hosting_ids_raw" | awk 'NR==1 { print; exit }')"

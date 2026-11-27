@@ -4,7 +4,9 @@
  * Replaces those keys in place. Inserts any that are missing at the top.
  * Does not create the file — callers skip this when the product has no hosting.yaml.
  *
- * Usage: node upsert-hosting-ids.cjs <hosting.yaml> <accountId> <zoneId> <zoneName>
+ * Reads and writes hosting.yaml in the current directory.
+ *
+ * Usage: node upsert-hosting-ids.cjs <accountId> <zoneId> <zoneName>
  */
 'use strict';
 
@@ -49,25 +51,30 @@ function upsertHostingIds(source, values) {
   return `${head}${newline}${body}`;
 }
 
+const HOSTING_FILE = 'hosting.yaml';
+
 function main(argv) {
-  const file = argv[2];
-  const accountId = argv[3];
-  const zoneId = argv[4];
-  const zoneName = argv[5];
-  if (!file || !accountId || !zoneId || !zoneName) {
+  const accountId = argv[2];
+  const zoneId = argv[3];
+  const zoneName = argv[4];
+  if (!accountId || !zoneId || !zoneName) {
     return {
       exitCode: 2,
-      stderr: 'Usage: upsert-hosting-ids.cjs <hosting.yaml> <accountId> <zoneId> <zoneName>\n',
+      stderr: 'Usage: upsert-hosting-ids.cjs <accountId> <zoneId> <zoneName>\n',
     };
   }
   let next;
   try {
-    next = upsertHostingIds(fs.readFileSync(file, 'utf8'), { accountId, zoneId, zoneName });
+    next = upsertHostingIds(fs.readFileSync(HOSTING_FILE, 'utf8'), {
+      accountId,
+      zoneId,
+      zoneName,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return { exitCode: 1, stderr: `${message}\n` };
   }
-  fs.writeFileSync(file, next);
+  fs.writeFileSync(HOSTING_FILE, next);
   return { exitCode: 0, stderr: '' };
 }
 

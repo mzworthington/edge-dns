@@ -301,11 +301,13 @@ HOSTING_FILE="${ROOT}/${WORK_DIR}/hosting.yaml"
 if [[ -f "$HOSTING_FILE" ]]; then
   [[ -n "${EDGE_DNS_SCRIPT_DIR:-}" && -f "${EDGE_DNS_SCRIPT_DIR}/upsert-hosting-ids.cjs" ]] \
     || die "Missing ${EDGE_DNS_SCRIPT_DIR:-<unset>}/upsert-hosting-ids.cjs (re-copy the setup shim)"
-  node "${EDGE_DNS_SCRIPT_DIR}/upsert-hosting-ids.cjs" \
-    "$HOSTING_FILE" \
-    "$CLOUDFLARE_ACCOUNT_ID" \
-    "$CLOUDFLARE_ZONE_ID" \
-    "$DOMAIN"
+  (
+    cd "${ROOT}/${WORK_DIR}"
+    node "${EDGE_DNS_SCRIPT_DIR}/upsert-hosting-ids.cjs" \
+      "$CLOUDFLARE_ACCOUNT_ID" \
+      "$CLOUDFLARE_ZONE_ID" \
+      "$DOMAIN"
+  )
   echo "→ Account id and zone id written to ${WORK_DIR}/hosting.yaml (commit that file; not stored as GitHub secrets)"
 else
   printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | gh secret set CLOUDFLARE_ACCOUNT_ID
