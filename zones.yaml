@@ -90,6 +90,10 @@ zones:
     role: vanity
     redirectTo: mzworthington.co.uk
 
+  yusur.co.uk:
+    role: product
+    notes: Registered at Cloudflare. Zone lifecycle only; product DNS stays in the product repo.
+
   # TODO: Come in after bulk transfer
   # siliconpanda.com:
   #   role: product
