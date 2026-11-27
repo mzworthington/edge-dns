@@ -297,8 +297,6 @@ ensure_r2_catalog_credentials
 
 echo "→ GitHub Actions secrets + vars"
 printf '%s' "$CLOUDFLARE_API_TOKEN" | gh secret set CLOUDFLARE_API_TOKEN
-printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | gh secret set CLOUDFLARE_ACCOUNT_ID
-printf '%s' "$CLOUDFLARE_ZONE_ID" | gh secret set CLOUDFLARE_ZONE_ID
 printf '%s' "$PULUMI_ACCESS_TOKEN" | gh secret set PULUMI_ACCESS_TOKEN
 if [[ -f "$HOSTING_FILE" ]]; then
   echo "→ Pages project and hostnames stay in ${WORK_DIR}/hosting.yaml"
