@@ -97,9 +97,13 @@ runs:
         pulumi config set zoneId "$CLOUDFLARE_ZONE_ID"
         pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"
 
-        # Product repos commit Pages name and hostnames in hosting.yaml.
-        # Do not let GitHub variables overwrite that file's stack.
+        # A committed pagesProjectName wins. Account-only hosting.yaml still
+        # takes Pages name and hostnames from the GitHub variables.
+        file_pages=""
         if [[ -f hosting.yaml ]]; then
+          file_pages="$(read_hosting pagesProjectName)"
+        fi
+        if [[ -n "$file_pages" && "$file_pages" != YOUR_* ]]; then
           echo "Pages project and hostnames come from hosting.yaml"
         else
           if [[ -n "${PULUMI_PAGES_PROJECT_NAME:-}" ]]; then
