@@ -25,7 +25,9 @@ Zone lifecycle stays in this repo ([ownership.md](ownership.md)). This page cove
 
 GitHub does **not** pass Actions secrets to Dependabot or fork `pull_request` runs. The reusable workflow therefore keeps secrets optional: preview/apply **skip** when secrets are missing (so Dependabot infra bumps stay green), and **fail** on `main` push/dispatch if secrets are absent.
 
-To run real Pulumi previews on Dependabot PRs, mirror the same four values as [Dependabot secrets](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-encrypted-secrets-for-dependabot) (`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_API_TOKEN`).
+Commit `accountId`, `zoneId`, and `zoneName` in the product `infra/cloudflare/hosting.yaml`. CI reads those ids from the file. A copied `CLOUDFLARE_ZONE_ID` secret cannot point the stack at another zone. `CLOUDFLARE_API_TOKEN` and `PULUMI_ACCESS_TOKEN` stay GitHub secrets and are not committed.
+
+To run real Pulumi previews on Dependabot PRs, mirror those two tokens as [Dependabot secrets](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-encrypted-secrets-for-dependabot). Legacy product repos that have not committed the ids also mirror `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ZONE_ID` until they do.
 
 Pin both the workflow and `tooling-ref` to the same commit SHA when you want a frozen consumer:
 
@@ -51,8 +53,6 @@ If you keep a custom workflow, still reuse the actions:
     stack-name: prod
   env:
     PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-    CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     PULUMI_PAGES_PROJECT_NAME: ${{ vars.PULUMI_PAGES_PROJECT_NAME }}
     PULUMI_PAGES_HOSTNAMES: ${{ vars.PULUMI_PAGES_HOSTNAMES }}
@@ -73,13 +73,23 @@ Orange-clouded product hosts (Cloudflare Pages / Workers): the zone-owner stack 
 
 Grey-cloud GitHub Pages origins cannot use auto-install. They keep a first-party `insights.<zone>` beacon host and paste `webAnalyticsSnippet` — see [github-pages-origin.md](github-pages-origin.md).
 
-### Env vars understood by `setup-pulumi-cloudflare`
+### Config understood by `setup-pulumi-cloudflare`
 
-| Env | Pulumi config key |
-|-----|-------------------|
-| `CLOUDFLARE_ACCOUNT_ID` | `accountId` (required) |
-| `CLOUDFLARE_ZONE_ID` | `zoneId` (required) |
-| `CLOUDFLARE_API_TOKEN` | `cloudflare:apiToken` secret (required) |
+```yaml
+# infra/cloudflare/hosting.yaml
+accountId: fe0bb0a89551958509fe4d65883026cc
+zoneId: 8fa428280586fdd39a02330d36ae0727
+zoneName: yusur.co.uk
+```
+
+| Source | Pulumi config key |
+|--------|-------------------|
+| `hosting.yaml` `accountId` | `accountId` (required; committed with the site) |
+| `hosting.yaml` `zoneId` | `zoneId` (required; committed with the site) |
+| `hosting.yaml` `zoneName` | checked by the product program against the live zone name |
+| `CLOUDFLARE_API_TOKEN` | `cloudflare:apiToken` secret (required; GitHub secret) |
+| `CLOUDFLARE_ACCOUNT_ID` | legacy `accountId` only when `hosting.yaml` omits the ids |
+| `CLOUDFLARE_ZONE_ID` | legacy `zoneId` only when `hosting.yaml` omits the ids |
 | `PULUMI_PAGES_PROJECT_NAME` | `pagesProjectName` |
 | `PULUMI_PAGES_HOSTNAMES` | `pagesHostnames` (JSON array, plaintext) |
 | `PULUMI_APEX_DOMAIN` | `apexDomain` (legacy) |

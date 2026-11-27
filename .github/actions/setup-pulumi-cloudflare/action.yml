@@ -1,7 +1,10 @@
 name: Setup Pulumi Cloudflare
 description: >-
-  Install Node/pnpm deps and configure a product Cloudflare Pulumi stack
-  (accountId, zoneId, apiToken, optional Pages/catalog config) from env.
+  Install Node/pnpm deps and configure a product Cloudflare Pulumi stack.
+  accountId and zoneId come from committed hosting.yaml when present (a copied
+  CLOUDFLARE_ZONE_ID secret cannot retarget the site). The API token stays an
+  env secret. Legacy stacks that omit the ids still pass CLOUDFLARE_ACCOUNT_ID
+  and CLOUDFLARE_ZONE_ID.
 inputs:
   work-dir:
     description: Directory containing Pulumi.yaml (product Cloudflare stack)
@@ -72,13 +75,31 @@ runs:
       run: |
         set -euo pipefail
 
-        : "${CLOUDFLARE_ACCOUNT_ID:?Set CLOUDFLARE_ACCOUNT_ID}"
-        : "${CLOUDFLARE_ZONE_ID:?Set CLOUDFLARE_ZONE_ID}"
         : "${CLOUDFLARE_API_TOKEN:?Set CLOUDFLARE_API_TOKEN}"
 
+        if ! hosting_ids_raw="$(node "${GITHUB_ACTION_PATH}/read-hosting-ids.cjs" hosting.yaml)"; then
+          exit 1
+        fi
+        ids_mode="$(printf '%s\n' "$hosting_ids_raw" | awk 'NR==1 { print; exit }')"
+        if [[ "$ids_mode" == "committed" ]]; then
+          # Do not read CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_ZONE_ID. A copied
+          # secret must not override the ids committed with this site.
+          unset CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_ZONE_ID
+          account_id="$(printf '%s\n' "$hosting_ids_raw" | awk 'NR==2 { print; exit }')"
+          zone_id="$(printf '%s\n' "$hosting_ids_raw" | awk 'NR==3 { print; exit }')"
+        elif [[ "$ids_mode" == "absent" ]]; then
+          : "${CLOUDFLARE_ACCOUNT_ID:?Commit accountId and zoneId in hosting.yaml, or set CLOUDFLARE_ACCOUNT_ID}"
+          : "${CLOUDFLARE_ZONE_ID:?Commit accountId and zoneId in hosting.yaml, or set CLOUDFLARE_ZONE_ID}"
+          account_id="$CLOUDFLARE_ACCOUNT_ID"
+          zone_id="$CLOUDFLARE_ZONE_ID"
+        else
+          echo "Could not read Cloudflare ids from hosting.yaml" >&2
+          exit 1
+        fi
+
         pulumi stack select "$STACK_NAME" 2>/dev/null || pulumi stack init "$STACK_NAME"
-        pulumi config set accountId "$CLOUDFLARE_ACCOUNT_ID"
-        pulumi config set zoneId "$CLOUDFLARE_ZONE_ID"
+        pulumi config set accountId "$account_id"
+        pulumi config set zoneId "$zone_id"
         pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"
 
         if [[ -n "${PULUMI_PAGES_PROJECT_NAME:-}" ]]; then

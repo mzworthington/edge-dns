@@ -43,3 +43,11 @@
 **Why:** ArchLens and `react-cloudflare-template` already duplicated setup actions, workflows, and bootstrap scripts. One home avoids drift; resource ownership stays split as above.
 
 **Not chosen:** A separate `cloudflare-tooling` repo (extra indirection for the same consumers); vendoring full copies into every product repo.
+
+## Product account and zone ids
+
+**Chosen:** A product site commits `accountId`, `zoneId`, and `zoneName` in `infra/cloudflare/hosting.yaml`. Shared CI reads that file and does not apply `CLOUDFLARE_ACCOUNT_ID` or `CLOUDFLARE_ZONE_ID` from GitHub secrets when the file has both ids. `CLOUDFLARE_API_TOKEN` and `PULUMI_ACCESS_TOKEN` stay in the secret store.
+
+**Why:** Zone ids are already public in the baselines. A copied GitHub secret (Yusur carried the archlens.dev zone id) otherwise points the product stack at another zone. The committed file is the site's zone binding.
+
+**Not chosen:** Leaving the ids only in GitHub secrets; storing the API token in the repo.

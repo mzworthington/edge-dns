@@ -16,6 +16,11 @@ name: Product Pulumi Cloudflare
 #
 # Create GitHub Environment "pulumi-prod" with required reviewers so the Approval
 # job waits between Preview and Apply.
+#
+# Account id and zone id are committed in <work-dir>/hosting.yaml. CI reads those
+# values and does not use CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_ZONE_ID when they are
+# present. API token and Pulumi access token stay GitHub secrets.
+# Legacy product repos that have not committed the ids still pass those two secrets.
 on:
   workflow_call:
     inputs:
@@ -77,7 +82,8 @@ on:
         default: ''
     # Optional so Dependabot / forks / fresh templates can call with
     # `secrets: inherit` without failing at workflow evaluation time.
-    # Preview/apply skip when any secret is empty; main pushes fail loudly.
+    # Preview/apply skip when required secrets are empty; main pushes fail loudly.
+    # Account id and zone id are not required once hosting.yaml commits them.
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: false
@@ -106,16 +112,46 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       ready: ${{ steps.check.outputs.ready }}
+      ids-committed: ${{ steps.ids.outputs.ids-committed }}
     steps:
+      - name: Checkout product repo
+        uses: actions/checkout@v7
+
+      - name: Checkout edge-dns tooling
+        uses: actions/checkout@v7
+        with:
+          repository: mzworthington/edge-dns
+          ref: ${{ inputs.tooling-ref }}
+          path: .edge-dns-tooling
+          sparse-checkout: |
+            .github/actions
+
+      - id: ids
+        run: |
+          result="$(node .edge-dns-tooling/.github/actions/setup-pulumi-cloudflare/read-hosting-ids.cjs "${{ inputs.work-dir }}/hosting.yaml")"
+          mode="$(printf '%s\n' "$result" | awk 'NR==1 { print; exit }')"
+          if [ "$mode" = "committed" ]; then
+            echo "ids-committed=true" >> "$GITHUB_OUTPUT"
+          elif [ "$mode" = "absent" ]; then
+            echo "ids-committed=false" >> "$GITHUB_OUTPUT"
+          else
+            printf '%s\n' "$result" >&2
+            exit 1
+          fi
+
       - id: check
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.ids.outputs.ids-committed != 'true' && secrets.CLOUDFLARE_ACCOUNT_ID || '' }}
+          CLOUDFLARE_ZONE_ID: ${{ steps.ids.outputs.ids-committed != 'true' && secrets.CLOUDFLARE_ZONE_ID || '' }}
         run: |
           ready=true
-          for name in PULUMI_ACCESS_TOKEN CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_ZONE_ID CLOUDFLARE_API_TOKEN; do
+          names="PULUMI_ACCESS_TOKEN CLOUDFLARE_API_TOKEN"
+          if [ "${{ steps.ids.outputs.ids-committed }}" != "true" ]; then
+            names="$names CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_ZONE_ID"
+          fi
+          for name in $names; do
             if [ -z "${!name}" ]; then
               echo "::notice::$name is not available in this workflow run (common for Dependabot and fork PRs)."
               ready=false
@@ -124,7 +160,11 @@ jobs:
           echo "ready=$ready" >> "$GITHUB_OUTPUT"
           if [ "$ready" != true ]; then
             if [ "${{ github.ref }}" = "refs/heads/main" ] && { [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; }; then
-              echo "::error::Pulumi Cloudflare secrets are required on main. Set repository (or Dependabot) secrets: PULUMI_ACCESS_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_TOKEN."
+              if [ "${{ steps.ids.outputs.ids-committed }}" = "true" ]; then
+                echo "::error::Pulumi Cloudflare tokens are required on main. Set repository (or Dependabot) secrets: PULUMI_ACCESS_TOKEN, CLOUDFLARE_API_TOKEN. Account id and zone id are read from hosting.yaml."
+              else
+                echo "::error::Pulumi Cloudflare secrets are required on main. Set repository (or Dependabot) secrets: PULUMI_ACCESS_TOKEN, CLOUDFLARE_API_TOKEN, and, until accountId and zoneId are committed in hosting.yaml, CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_ZONE_ID."
+              fi
               exit 1
             fi
             echo "::notice::Skipping Pulumi preview/apply — secrets not available."
@@ -159,8 +199,8 @@ jobs:
           extra-config: ${{ inputs.extra-config }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ needs.secrets-ready.outputs.ids-committed != 'true' && secrets.CLOUDFLARE_ACCOUNT_ID || '' }}
+          CLOUDFLARE_ZONE_ID: ${{ needs.secrets-ready.outputs.ids-committed != 'true' && secrets.CLOUDFLARE_ZONE_ID || '' }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           PULUMI_PAGES_PROJECT_NAME: ${{ vars.PULUMI_PAGES_PROJECT_NAME }}
           PULUMI_PAGES_HOSTNAMES: ${{ vars.PULUMI_PAGES_HOSTNAMES }}
@@ -230,8 +270,8 @@ jobs:
           extra-config: ${{ inputs.extra-config }}
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ needs.secrets-ready.outputs.ids-committed != 'true' && secrets.CLOUDFLARE_ACCOUNT_ID || '' }}
+          CLOUDFLARE_ZONE_ID: ${{ needs.secrets-ready.outputs.ids-committed != 'true' && secrets.CLOUDFLARE_ZONE_ID || '' }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           PULUMI_PAGES_PROJECT_NAME: ${{ vars.PULUMI_PAGES_PROJECT_NAME }}
           PULUMI_PAGES_HOSTNAMES: ${{ vars.PULUMI_PAGES_HOSTNAMES }}

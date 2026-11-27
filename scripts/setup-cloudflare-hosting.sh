@@ -8,7 +8,10 @@
 # (or copy that shim into their repo).
 #
 # Prefers values from the product repo-root `.env` (gitignored).
-# Shell-exported vars override `.env`. CI uses GitHub secrets/vars instead.
+# Shell-exported vars override `.env`.
+# When infra/cloudflare/hosting.yaml exists, account id, zone id, and zone name
+# are written there (commit that file). They are not GitHub secrets.
+# CLOUDFLARE_API_TOKEN and PULUMI_ACCESS_TOKEN are always GitHub secrets.
 #
 # Requires (env or .env):
 #   PULUMI_STACK, DOMAIN (existing Cloudflare zone name), PAGES_PROJECT_NAME
@@ -101,15 +104,18 @@ export WWW_DOMAIN="${WWW_DOMAIN:-}"
 export CATALOG_BUCKET_NAME="${CATALOG_BUCKET_NAME:-}"
 export CATALOG_DOMAIN="${CATALOG_DOMAIN:-}"
 export BWS_PROJECT_ID="${BWS_PROJECT_ID:-}"
+EDGE_DNS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export EDGE_DNS_SCRIPT_DIR
 
 # Body runs under `bash` with stdin from the heredoc.
 # Do not use `bash -c "$(declare -f …)"`; `bws run` mangles that.
 if [[ "$USE_BWS" == "1" ]]; then
   bws run --project-id "$BWS_PROJECT_ID" -- \
     env BWS_ACCESS_TOKEN="${BWS_ACCESS_TOKEN}" USE_BWS=1 \
+    EDGE_DNS_SCRIPT_DIR="${EDGE_DNS_SCRIPT_DIR}" \
     bash
 else
-  env USE_BWS=0 bash
+  env USE_BWS=0 EDGE_DNS_SCRIPT_DIR="${EDGE_DNS_SCRIPT_DIR}" bash
 fi <<'EOF'
 set -euo pipefail
 
@@ -291,8 +297,20 @@ ensure_r2_catalog_credentials
 
 echo "→ GitHub Actions secrets + vars"
 printf '%s' "$CLOUDFLARE_API_TOKEN" | gh secret set CLOUDFLARE_API_TOKEN
-printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | gh secret set CLOUDFLARE_ACCOUNT_ID
-printf '%s' "$CLOUDFLARE_ZONE_ID" | gh secret set CLOUDFLARE_ZONE_ID
+HOSTING_FILE="${ROOT}/${WORK_DIR}/hosting.yaml"
+if [[ -f "$HOSTING_FILE" ]]; then
+  [[ -n "${EDGE_DNS_SCRIPT_DIR:-}" && -f "${EDGE_DNS_SCRIPT_DIR}/upsert-hosting-ids.cjs" ]] \
+    || die "Missing ${EDGE_DNS_SCRIPT_DIR:-<unset>}/upsert-hosting-ids.cjs (re-copy the setup shim)"
+  node "${EDGE_DNS_SCRIPT_DIR}/upsert-hosting-ids.cjs" \
+    "$HOSTING_FILE" \
+    "$CLOUDFLARE_ACCOUNT_ID" \
+    "$CLOUDFLARE_ZONE_ID" \
+    "$DOMAIN"
+  echo "→ Account id and zone id written to ${WORK_DIR}/hosting.yaml (commit that file; not stored as GitHub secrets)"
+else
+  printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | gh secret set CLOUDFLARE_ACCOUNT_ID
+  printf '%s' "$CLOUDFLARE_ZONE_ID" | gh secret set CLOUDFLARE_ZONE_ID
+fi
 printf '%s' "$PULUMI_ACCESS_TOKEN" | gh secret set PULUMI_ACCESS_TOKEN
 gh variable set PULUMI_PAGES_PROJECT_NAME --body "$PAGES_PROJECT_NAME"
 gh variable set PULUMI_PAGES_HOSTNAMES --body "$PAGES_HOSTNAMES_JSON"
