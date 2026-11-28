@@ -6,7 +6,7 @@ Project `edge-dns` with stacks per domain. Zone lifecycle only; product DNS/Page
 
 | Stack | Zone |
 |-------|------|
-| `archlens.dev` | ArchLens |
+| `archlens.dev` | product |
 | `waykit.dev` | Waykit (GitHub Pages origin DNS) |
 | `eval-driven.dev` | Vanity → `waykit.dev` |
 | `eval-driven-development.dev` | Vanity → `waykit.dev` |
