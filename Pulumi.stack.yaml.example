@@ -1,10 +1,10 @@
-# Stacks are named after the zone (e.g. archlens.dev).
+# Stacks are named after the zone (e.g. waykit.dev).
 # accountId and optional manageSettings live in zones.yaml.
 # CLOUDFLARE_API_TOKEN comes from the environment, not from stack config.
 #
 #   export CLOUDFLARE_API_TOKEN=…
 #   export PULUMI_ACCESS_TOKEN=…
-#   pulumi stack init archlens.dev
+#   pulumi stack init waykit.dev
 #   pulumi preview
 #
 # Optional overrides (defaults live in index.ts; manageSettings must be true

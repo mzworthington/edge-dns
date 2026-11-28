@@ -25,6 +25,4 @@ Products that publish on **Cloudflare** own hostname DNS and app edge resources.
 
 ## Example
 
-ArchLens (`archlens.dev`): zone in `edge-dns`; Pages + apex/www DNS in blueprint `infra/cloudflare`.
-
-Waykit (`waykit.dev`): zone + GitHub Pages origin DNS + Web Analytics + `insights.` beacon host in `edge-dns` (`githubPages` in [`zones.yaml`](../zones.yaml)). Former hostnames `eval-driven.dev` and `eval-driven-development.dev` are vanity → `waykit.dev`. The kit repo runs GitHub Actions Pages deploy and embeds the grey-cloud RUM snippet — see [github-pages-origin.md](github-pages-origin.md).
+Waykit (`waykit.dev`): zone + GitHub Pages origin DNS + Web Analytics + `insights.` beacon host in `edge-dns` (`githubPages` in [`zones.yaml`](../zones.yaml)). Former hostnames `eval-driven.dev` and `eval-driven-development.dev`, plus `lang-cli.dev` and `lan-cli.dev`, are vanity → `waykit.dev`. The kit repo runs GitHub Actions Pages deploy and embeds the grey-cloud RUM snippet — see [github-pages-origin.md](github-pages-origin.md).

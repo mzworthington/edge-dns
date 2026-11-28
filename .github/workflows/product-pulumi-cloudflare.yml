@@ -158,8 +158,6 @@ jobs:
           PULUMI_PAGES_HOSTNAMES: ${{ vars.PULUMI_PAGES_HOSTNAMES }}
           PULUMI_APEX_DOMAIN: ${{ vars.PULUMI_APEX_DOMAIN }}
           PULUMI_WWW_DOMAIN: ${{ vars.PULUMI_WWW_DOMAIN }}
-          PULUMI_CATALOG_BUCKET_NAME: ${{ vars.PULUMI_CATALOG_BUCKET_NAME }}
-          PULUMI_CATALOG_DOMAIN: ${{ vars.PULUMI_CATALOG_DOMAIN }}
 
       - name: Pulumi preview
         uses: ./.edge-dns-tooling/.github/actions/pulumi-rich-report
@@ -227,8 +225,6 @@ jobs:
           PULUMI_PAGES_HOSTNAMES: ${{ vars.PULUMI_PAGES_HOSTNAMES }}
           PULUMI_APEX_DOMAIN: ${{ vars.PULUMI_APEX_DOMAIN }}
           PULUMI_WWW_DOMAIN: ${{ vars.PULUMI_WWW_DOMAIN }}
-          PULUMI_CATALOG_BUCKET_NAME: ${{ vars.PULUMI_CATALOG_BUCKET_NAME }}
-          PULUMI_CATALOG_DOMAIN: ${{ vars.PULUMI_CATALOG_DOMAIN }}
 
       - name: Pulumi up
         uses: ./.edge-dns-tooling/.github/actions/pulumi-rich-report

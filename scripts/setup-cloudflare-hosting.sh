@@ -17,7 +17,6 @@
 #     WWW_DOMAIN=www.example.com   # legacy apex+www shape (also sets apexDomain)
 # Optional:
 #   BWS_ACCESS_TOKEN, BWS_PROJECT_ID
-#   CATALOG_BUCKET_NAME, CATALOG_DOMAIN  # R2 catalog (ArchLens-style)
 #   WORK_DIR=infra/cloudflare
 #
 # Usage (from a product repo root, via shim or direct clone):
@@ -126,82 +125,6 @@ mint_pulumi_token() {
   bws_put PULUMI_ACCESS_TOKEN "$PULUMI_ACCESS_TOKEN"
 }
 
-# Workers R2 Storage Bucket Item Write. Platform permission group, not account-specific.
-R2_BUCKET_ITEM_WRITE_PERMISSION_GROUP_ID="2efd5506f9c8494dacb1fa10a3e7d5b6"
-
-print_r2_token_hint() {
-  echo "" >&2
-  echo "Could not create an R2-scoped API token automatically." >&2
-  echo "Your CLOUDFLARE_API_TOKEN likely lacks \"User API Tokens: Edit\" (or Account API Tokens)." >&2
-  echo "" >&2
-  echo "Create an R2 API token in the dashboard (Object Read & Write on bucket ${CATALOG_BUCKET_NAME})," >&2
-  echo "then store in bws (or env) and re-run:" >&2
-  echo "" >&2
-  echo "  R2_BLUEPRINT_CATALOG_BUCKET='${CATALOG_BUCKET_NAME}'" >&2
-  echo "  R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID='<access-key-id>'" >&2
-  echo "  R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY='<secret-access-key>'" >&2
-  echo "" >&2
-}
-
-mint_r2_catalog_credentials() {
-  echo "→ Minting R2 catalog S3 credentials (scoped to ${CATALOG_BUCKET_NAME})"
-  local resource payload resp token_id token_value secret_key
-  resource="com.cloudflare.edge.r2.bucket.${CLOUDFLARE_ACCOUNT_ID}_default_${CATALOG_BUCKET_NAME}"
-  payload=$(jq -n \
-    --arg name "r2-catalog-publish-${CATALOG_BUCKET_NAME}" \
-    --arg pg "$R2_BUCKET_ITEM_WRITE_PERMISSION_GROUP_ID" \
-    --arg resource "$resource" \
-    '{
-      name: $name,
-      policies: [{
-        effect: "allow",
-        resources: {($resource): "*"},
-        permission_groups: [{id: $pg}]
-      }]
-    }')
-
-  resp=$(cf_api -X POST "https://api.cloudflare.com/client/v4/user/tokens" --data "$payload")
-  if [[ "$(jq -r '.success // false' <<<"$resp")" != "true" ]]; then
-    echo "$resp" | jq -r '.errors[]? | "  Cloudflare: \(.message // .)"' >&2 || true
-    print_r2_token_hint
-    die "R2 catalog credentials missing"
-  fi
-
-  token_id=$(jq -r '.result.id // empty' <<<"$resp")
-  token_value=$(jq -r '.result.value // empty' <<<"$resp")
-  [[ -n "$token_id" && -n "$token_value" ]] || die "Cloudflare token create returned no id/value"
-
-  # S3 Secret Access Key = SHA-256 hex of the API token value (Cloudflare R2 docs).
-  secret_key=$(printf '%s' "$token_value" | openssl dgst -sha256 -hex | awk '{print $NF}')
-
-  R2_BLUEPRINT_CATALOG_BUCKET="$CATALOG_BUCKET_NAME"
-  R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID="$token_id"
-  R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY="$secret_key"
-  export R2_BLUEPRINT_CATALOG_BUCKET R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY
-
-  echo "→ Saving R2 catalog credentials to bws (if enabled)"
-  bws_put R2_BLUEPRINT_CATALOG_BUCKET "$R2_BLUEPRINT_CATALOG_BUCKET"
-  bws_put R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID "$R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID"
-  bws_put R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY "$R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY"
-}
-
-ensure_r2_catalog_credentials() {
-  [[ "${USE_CATALOG:-0}" == "1" ]] || return 0
-  if [[ -n "${R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID:-}" && -n "${R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY:-}" ]]; then
-    R2_BLUEPRINT_CATALOG_BUCKET="${R2_BLUEPRINT_CATALOG_BUCKET:-$CATALOG_BUCKET_NAME}"
-    export R2_BLUEPRINT_CATALOG_BUCKET
-    if [[ "$R2_BLUEPRINT_CATALOG_BUCKET" != "$CATALOG_BUCKET_NAME" ]]; then
-      echo "→ Updating R2_BLUEPRINT_CATALOG_BUCKET to match CATALOG_BUCKET_NAME"
-      R2_BLUEPRINT_CATALOG_BUCKET="$CATALOG_BUCKET_NAME"
-      export R2_BLUEPRINT_CATALOG_BUCKET
-      bws_put R2_BLUEPRINT_CATALOG_BUCKET "$R2_BLUEPRINT_CATALOG_BUCKET"
-    fi
-    echo "→ R2 catalog credentials ok"
-    return 0
-  fi
-  mint_r2_catalog_credentials
-}
-
 resolve_cloudflare_account() {
   echo "→ Cloudflare account"
   if [[ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]]; then
@@ -264,14 +187,6 @@ publish_github_config() {
     gh variable set PULUMI_APEX_DOMAIN --body "$DOMAIN"
     gh variable set PULUMI_WWW_DOMAIN --body "$WWW_DOMAIN"
   fi
-
-  if [[ "${USE_CATALOG:-0}" == "1" ]]; then
-    printf '%s' "$R2_BLUEPRINT_CATALOG_BUCKET" | gh secret set R2_BLUEPRINT_CATALOG_BUCKET
-    printf '%s' "$R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID" | gh secret set R2_BLUEPRINT_CATALOG_ACCESS_KEY_ID
-    printf '%s' "$R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY" | gh secret set R2_BLUEPRINT_CATALOG_SECRET_ACCESS_KEY
-    gh variable set PULUMI_CATALOG_BUCKET_NAME --body "$CATALOG_BUCKET_NAME"
-    gh variable set PULUMI_CATALOG_DOMAIN --body "$CATALOG_DOMAIN"
-  fi
 }
 
 write_pulumi_stack() {
@@ -290,10 +205,6 @@ write_pulumi_stack() {
   if [[ -n "${WWW_DOMAIN:-}" ]]; then
     pulumi config set apexDomain "$DOMAIN"
     pulumi config set wwwDomain "$WWW_DOMAIN"
-  fi
-  if [[ "${USE_CATALOG:-0}" == "1" ]]; then
-    pulumi config set catalogBucketName "$CATALOG_BUCKET_NAME"
-    pulumi config set catalogDomain "$CATALOG_DOMAIN"
   fi
 }
 
@@ -314,7 +225,6 @@ apply_hosting() {
   resolve_cloudflare_account
   resolve_zone
   ensure_pulumi_token
-  ensure_r2_catalog_credentials
   publish_github_config
   write_pulumi_stack
   print_done
@@ -355,23 +265,11 @@ configure_pages_inputs() {
   PAGES_HOSTNAMES_JSON=$(pages_hostnames_json "$PAGES_HOSTNAMES")
 }
 
-configure_catalog() {
-  USE_CATALOG=0
-  if [[ -n "${CATALOG_BUCKET_NAME:-}" || -n "${CATALOG_DOMAIN:-}" ]]; then
-    : "${CATALOG_BUCKET_NAME:?Set CATALOG_BUCKET_NAME when using catalog mode}"
-    : "${CATALOG_DOMAIN:?Set CATALOG_DOMAIN when using catalog mode}"
-    USE_CATALOG=1
-  fi
-}
-
 require_tools() {
   local c
   for c in gh pulumi jq curl pnpm; do
     command -v "$c" >/dev/null || { echo "Missing: $c"; exit 1; }
   done
-  if [[ "$USE_CATALOG" == "1" ]]; then
-    command -v openssl >/dev/null || { echo "Missing: openssl (needed for R2 catalog mint)"; exit 1; }
-  fi
   gh auth status >/dev/null 2>&1 || { echo "Run: gh auth login"; exit 1; }
   USE_BWS=0
   if [[ -n "${BWS_ACCESS_TOKEN:-}" && -n "${BWS_PROJECT_ID:-}" ]]; then
@@ -381,12 +279,10 @@ require_tools() {
 }
 
 export_bootstrap_env() {
-  export ROOT DOMAIN STACK PAGES_HOSTNAMES_JSON USE_BWS USE_CATALOG WORK_DIR HOSTING_FILE
+  export ROOT DOMAIN STACK PAGES_HOSTNAMES_JSON USE_BWS WORK_DIR HOSTING_FILE
   export PAGES_PROJECT_NAME="${PAGES_PROJECT_NAME:-}"
   export PAGES_HOSTNAMES="${PAGES_HOSTNAMES:-}"
   export WWW_DOMAIN="${WWW_DOMAIN:-}"
-  export CATALOG_BUCKET_NAME="${CATALOG_BUCKET_NAME:-}"
-  export CATALOG_DOMAIN="${CATALOG_DOMAIN:-}"
   export BWS_PROJECT_ID="${BWS_PROJECT_ID:-}"
 }
 
@@ -406,7 +302,6 @@ prepare_bootstrap() {
   : "${PULUMI_STACK:?Set PULUMI_STACK (Pulumi stack name); see .env.example}"
   : "${DOMAIN:?Set DOMAIN (existing Cloudflare zone name, e.g. example.com)}"
   configure_pages_inputs
-  configure_catalog
   require_tools
   export_bootstrap_env
 }

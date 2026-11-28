@@ -1,7 +1,7 @@
 name: Setup Pulumi Cloudflare
 description: >-
   Install Node/pnpm deps and configure a product Cloudflare Pulumi stack
-  (accountId, zoneId, apiToken, optional Pages/catalog config) from env.
+  (accountId, zoneId, apiToken, optional Pages config) from env.
 inputs:
   work-dir:
     description: Directory containing Pulumi.yaml (product Cloudflare stack)
@@ -26,7 +26,7 @@ inputs:
   extra-config:
     description: >-
       Optional multiline KEY=VALUE Pulumi config (non-secret). Applied after
-      standard Cloudflare / Pages keys. Example: catalogBucketName=my-bucket
+      standard Cloudflare / Pages keys. Example: pagesProjectName=www
     required: false
     default: ''
 runs:
@@ -66,8 +66,6 @@ runs:
         PULUMI_PAGES_HOSTNAMES: ${{ env.PULUMI_PAGES_HOSTNAMES }}
         PULUMI_APEX_DOMAIN: ${{ env.PULUMI_APEX_DOMAIN }}
         PULUMI_WWW_DOMAIN: ${{ env.PULUMI_WWW_DOMAIN }}
-        PULUMI_CATALOG_BUCKET_NAME: ${{ env.PULUMI_CATALOG_BUCKET_NAME }}
-        PULUMI_CATALOG_DOMAIN: ${{ env.PULUMI_CATALOG_DOMAIN }}
         EXTRA_CONFIG: ${{ inputs.extra-config }}
       run: |
         set -euo pipefail
@@ -118,12 +116,6 @@ runs:
         fi
         if [[ -n "${PULUMI_WWW_DOMAIN:-}" ]]; then
           pulumi config set wwwDomain "$PULUMI_WWW_DOMAIN"
-        fi
-        if [[ -n "${PULUMI_CATALOG_BUCKET_NAME:-}" ]]; then
-          pulumi config set catalogBucketName "$PULUMI_CATALOG_BUCKET_NAME"
-        fi
-        if [[ -n "${PULUMI_CATALOG_DOMAIN:-}" ]]; then
-          pulumi config set catalogDomain "$PULUMI_CATALOG_DOMAIN"
         fi
 
         if [[ -n "${EXTRA_CONFIG:-}" ]]; then

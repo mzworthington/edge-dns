@@ -84,8 +84,6 @@ Grey-cloud GitHub Pages origins cannot use auto-install. They keep a first-party
 | `PULUMI_PAGES_HOSTNAMES` | `pagesHostnames` (JSON array, plaintext) |
 | `PULUMI_APEX_DOMAIN` | `apexDomain` (legacy) |
 | `PULUMI_WWW_DOMAIN` | `wwwDomain` (legacy) |
-| `PULUMI_CATALOG_BUCKET_NAME` | `catalogBucketName` |
-| `PULUMI_CATALOG_DOMAIN` | `catalogDomain` |
 
 Extra keys: pass `extra-config` as multiline `KEY=VALUE`.
 
@@ -106,8 +104,7 @@ The shim downloads [`scripts/setup-cloudflare-hosting.sh`](../scripts/setup-clou
 ### Hostname modes
 
 - **Modern:** `PAGES_HOSTNAMES=app.example.com` → sets `pagesHostnames` JSON + GH var.
-- **Legacy apex+www:** `WWW_DOMAIN=www.example.com` → also sets `apexDomain` / `wwwDomain` and GH vars (ArchLens-shaped stacks).
-- **Optional catalog:** `CATALOG_BUCKET_NAME` + `CATALOG_DOMAIN` → mints/syncs R2 publish credentials.
+- **Legacy apex+www:** `WWW_DOMAIN=www.example.com` → also sets `apexDomain` / `wwwDomain` and GH vars.
 
 ## Migration checklist (from a duplicated product copy)
 

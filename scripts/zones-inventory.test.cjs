@@ -38,6 +38,12 @@ describe('loadZonesInventory', () => {
     assert.match(inventory.accountId, /^[a-f0-9]{32}$/);
   });
 
+  it('redirects lang-cli.dev and lan-cli.dev to waykit.dev', async () => {
+    const { inventoryCanonicalRedirectTo } = await import('../zones.ts');
+    assert.equal(inventoryCanonicalRedirectTo('lang-cli.dev'), 'waykit.dev');
+    assert.equal(inventoryCanonicalRedirectTo('lan-cli.dev'), 'waykit.dev');
+  });
+
   it('resolves a stack from the inventory, including manageSettings when true', async () => {
     const { edgeStackSettings } = await import('../zones.ts');
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edge-dns-zones-'));

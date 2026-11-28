@@ -25,7 +25,7 @@
 #
 #   ./scripts/sync-cloudflare-api-token.sh --dry-run
 #   ./scripts/sync-cloudflare-api-token.sh --token-file - <<<"$NEW_TOKEN"
-#   GH_REPOS='mzworthington/edge-dns,mzworthington/archlens' ./scripts/sync-cloudflare-api-token.sh
+#   GH_REPOS='mzworthington/edge-dns,mzworthington/mzworthington' ./scripts/sync-cloudflare-api-token.sh
 #
 set -euo pipefail
 
@@ -37,7 +37,6 @@ TOKEN_FILE=""
 # Product + control-plane repos that use Cloudflare CI today.
 DEFAULT_GH_REPOS=(
   mzworthington/edge-dns
-  mzworthington/archlens
   mzworthington/mzworthington
   mzworthington/gpio-build-monitor
 )

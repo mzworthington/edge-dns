@@ -9,7 +9,7 @@ accountId: fe0bb0a89551958509fe4d65883026cc
 zones:
   archlens.dev:
     role: product
-    notes: ArchLens product zone
+    notes: product zone
 
   waykit.dev:
     role: product
@@ -25,6 +25,16 @@ zones:
     role: vanity
     redirectTo: waykit.dev
     notes: Former kit hostname; 301 to waykit.dev (apply after GitHub Pages CNAME + cert are on waykit.dev)
+
+  lang-cli.dev:
+    role: vanity
+    redirectTo: waykit.dev
+    notes: Vanity hostname; 301 to waykit.dev
+
+  lan-cli.dev:
+    role: vanity
+    redirectTo: waykit.dev
+    notes: Vanity hostname; 301 to waykit.dev
 
   matthewworthington.com:
     role: vanity

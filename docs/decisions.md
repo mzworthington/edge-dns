@@ -8,7 +8,7 @@
 
 ## Project + stack naming
 
-**Chosen:** One Pulumi project `edge-dns`; **one stack per zone**, named after the domain (`archlens.dev`, `mzworthington.co.uk`, …).
+**Chosen:** One Pulumi project `edge-dns`; **one stack per zone**, named after the domain (`waykit.dev`, `mzworthington.co.uk`, …).
 
 **Why:** Scales to many zones without `edge-dns-<hyphenated-domain>/prod` project sprawl. Blast radius stays per-zone (separate state). CI matrices over stacks.
 
@@ -40,6 +40,6 @@
 
 **Chosen:** Reusable GitHub Actions, the product Pulumi workflow, and `scripts/setup-cloudflare-hosting.sh` live in `edge-dns`. Product repos keep thin callers/shims only ([examples/product-cloudflare/](../examples/product-cloudflare/)).
 
-**Why:** ArchLens and `react-cloudflare-template` already duplicated setup actions, workflows, and bootstrap scripts. One home avoids drift; resource ownership stays split as above.
+**Why:** Product repos had already duplicated setup actions, workflows, and bootstrap scripts. One home avoids drift; resource ownership stays split as above.
 
 **Not chosen:** A separate `cloudflare-tooling` repo (extra indirection for the same consumers); vendoring full copies into every product repo.

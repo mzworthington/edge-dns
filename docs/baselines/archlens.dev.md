@@ -8,4 +8,4 @@
 | Name servers | `lauryn.ns.cloudflare.com`, `tosana.ns.cloudflare.com` |
 | Pulumi | `mzworthington/edge-dns/archlens.dev` |
 
-Managed: `cloudflare.Zone` only (`manageSettings=false`). Product DNS/Pages → ArchLens repo.
+Managed: `cloudflare.Zone` only (`manageSettings=false`). Product DNS and Pages stay in the product repo.

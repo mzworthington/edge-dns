@@ -22,7 +22,7 @@ const zoneType = config.get('zoneType') as
   | 'internal'
   | undefined;
 
-/** Logical resource name: archlens.dev → archlens-dev */
+/** Logical resource name: waykit.dev → waykit-dev */
 const zoneSlug = slugifyZone(zoneName);
 
 /** Optional override; otherwise vanity `redirectTo` from zones.yaml for this zoneName. */

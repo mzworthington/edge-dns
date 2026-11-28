@@ -7,8 +7,8 @@ name: Pulumi Cloudflare
 # Secrets: CLOUDFLARE_API_TOKEN, PULUMI_ACCESS_TOKEN
 # Account and zone ids: infra/cloudflare/hosting.yaml
 # Pages project name and hostnames: infra/cloudflare/hosting.yaml when that file exists
-# Optional vars for ArchLens-shaped stacks:
-#   PULUMI_APEX_DOMAIN, PULUMI_WWW_DOMAIN, PULUMI_CATALOG_BUCKET_NAME, PULUMI_CATALOG_DOMAIN
+# Optional vars for apex and www hostnames:
+#   PULUMI_APEX_DOMAIN, PULUMI_WWW_DOMAIN
 #
 # Dependabot/fork PRs do not receive Actions secrets; the reusable workflow skips
 # preview then. Mirror secrets as Dependabot secrets if you want real previews.
