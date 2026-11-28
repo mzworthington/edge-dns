@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Product bootstrap from this checkout. Put this directory on PATH and run
+# `setup-cloudflare-hosting` from the product repo. No copy, no download.
+set -euo pipefail
+
+EDGE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PRODUCT_ROOT="${PRODUCT_ROOT:-$PWD}"
+exec bash "${EDGE_ROOT}/scripts/setup-cloudflare-hosting.sh" "$@"

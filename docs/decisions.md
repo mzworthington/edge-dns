@@ -38,7 +38,7 @@
 
 ## Shared Cloudflare CI / bootstrap home
 
-**Chosen:** Reusable GitHub Actions, the product Pulumi workflow, and `scripts/setup-cloudflare-hosting.sh` live in `edge-dns`. Product repos keep thin callers/shims only ([examples/product-cloudflare/](../examples/product-cloudflare/)).
+**Chosen:** Reusable GitHub Actions, the product Pulumi workflow, and `cmd/setup-cloudflare-hosting` live in `edge-dns`. Product repos call that command from `PATH`. They keep a local script only for repo-specific defaults ([examples/product-cloudflare/](../examples/product-cloudflare/)).
 
 **Why:** Product repos had already duplicated setup actions, workflows, and bootstrap scripts. One home avoids drift; resource ownership stays split as above.
 

@@ -12,8 +12,8 @@ Zone lifecycle stays in this repo ([ownership.md](ownership.md)). This page cove
 | [`.github/actions/setup-pulumi-cloudflare`](../.github/actions/setup-pulumi-cloudflare) | Product stack: Node/pnpm + `accountId` / `zoneId` / Pages config |
 | [`.github/actions/setup-edge-dns-pulumi`](../.github/actions/setup-edge-dns-pulumi) | This repo only: zone stack config |
 | [`.github/workflows/product-pulumi-cloudflare.yml`](../.github/workflows/product-pulumi-cloudflare.yml) | Reusable preview → **Approval** (Environment) → apply |
-| [`scripts/setup-cloudflare-hosting.sh`](../scripts/setup-cloudflare-hosting.sh) | Local bootstrap: secrets → GitHub → Pulumi config |
-| [`examples/product-cloudflare/`](../examples/product-cloudflare/) | Thin shims to copy into product repos |
+| [`cmd/setup-cloudflare-hosting`](../cmd/setup-cloudflare-hosting) | Local bootstrap on `PATH`: secrets → GitHub → Pulumi config |
+| [`examples/product-cloudflare/`](../examples/product-cloudflare/) | Thin CI workflow to copy into product repos |
 
 ## Product repo: CI
 
@@ -89,28 +89,29 @@ Extra keys: pass `extra-config` as multiline `KEY=VALUE`.
 
 ## Product repo: bootstrap script
 
-1. Copy [`examples/product-cloudflare/bin/setup-cloudflare-hosting.sh`](../examples/product-cloudflare/bin/setup-cloudflare-hosting.sh) into the product `bin/`.
-2. Copy [`.env.example`](../examples/product-cloudflare/.env.example) → `.env` and fill in values.
-3. Run:
+Put this checkout's `cmd` on `PATH`:
+
+```bash
+export PATH="$HOME/Documents/dev/edge-dns/cmd:$PATH"
+```
+
+Export `BWS_ACCESS_TOKEN`, `BWS_PROJECT_ID`, `PULUMI_STACK`, and `DOMAIN` (see [`.env.example`](../examples/product-cloudflare/.env.example)), then from the product repo:
 
 ```bash
 gh auth login
 pulumi login
-bin/setup-cloudflare-hosting.sh
+setup-cloudflare-hosting
 ```
 
-The shim downloads [`scripts/setup-cloudflare-hosting.sh`](../scripts/setup-cloudflare-hosting.sh) from this repo (`EDGE_DNS_REF`, default `main`).
+`setup-cloudflare-hosting` runs [`scripts/setup-cloudflare-hosting.sh`](../scripts/setup-cloudflare-hosting.sh) from this checkout. Product repos do not copy it. Keep a local `bin/setup-cloudflare-hosting.sh` only when that repo adds defaults or a follow-up step.
 
-### Hostname modes
-
-- **Modern:** `PAGES_HOSTNAMES=app.example.com` → sets `pagesHostnames` JSON + GH var.
-- **Legacy apex+www:** `WWW_DOMAIN=www.example.com` → also sets `apexDomain` / `wwwDomain` and GH vars.
+Pages project name and hostnames come from `infra/cloudflare/hosting.yaml`. The bootstrap script copies the Bitwarden secrets into GitHub and the Pulumi stack. It does not read a `.env` file.
 
 ## Migration checklist (from a duplicated product copy)
 
 1. Replace local `.github/actions/setup-pulumi-cloudflare` with the edge-dns action (or the reusable workflow).
 2. Replace inline `pulumi/actions` + dashboard glue with `pulumi-rich-report` (or the reusable workflow).
-3. Replace local `bin/setup-cloudflare-hosting.sh` with the thin shim.
+3. Delete the local downloader and run `setup-cloudflare-hosting` from this checkout (`cmd` on `PATH`).
 4. Delete the old composite action directory from the product repo.
 5. Point docs at [this page](reusable-cloudflare-ci.md) and [add-product-dns.md](add-product-dns.md).
 

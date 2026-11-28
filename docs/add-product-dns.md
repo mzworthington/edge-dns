@@ -9,8 +9,8 @@ Products that publish on **Cloudflare** own hostname DNS and app edge resources.
 
 ## Steps (product repo)
 
-1. Copy thin CI/bootstrap shims from [`examples/product-cloudflare/`](../examples/product-cloudflare/) (see [reusable-cloudflare-ci.md](reusable-cloudflare-ci.md)).
-2. Run `bin/setup-cloudflare-hosting.sh` (shim → edge-dns script) to sync secrets/vars and Pulumi config — or set them manually.
+1. Copy the thin CI workflow from [`examples/product-cloudflare/`](../examples/product-cloudflare/) (see [reusable-cloudflare-ci.md](reusable-cloudflare-ci.md)).
+2. Run `setup-cloudflare-hosting` (`edge-dns/cmd` on `PATH`) to sync secrets and Pulumi config — or set them manually.
 3. Create the Pages (or Workers) project in the **product** stack.
 4. Create `DnsRecord` CNAMEs (or equivalent) for those hostnames pointing at the Pages project subdomain.
 5. Attach `PagesDomain` (or custom domain bindings) in the product stack.

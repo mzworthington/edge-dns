@@ -25,7 +25,7 @@ Project `edge-dns` with stacks per domain. Zone lifecycle only; product DNS/Page
 
 ## Shared tooling
 
-Reusable product Cloudflare Actions/workflow + `scripts/setup-cloudflare-hosting.sh` live here. Consumers: copy shims from `examples/product-cloudflare/`; see `docs/reusable-cloudflare-ci.md`.
+Reusable product Cloudflare Actions/workflow and `cmd/setup-cloudflare-hosting` live here. Consumers put `cmd` on `PATH`. See `docs/reusable-cloudflare-ci.md`.
 
 ## Deferred
 

@@ -14,10 +14,13 @@ describe('edge-dns product coupling', () => {
     const files = execFileSync('git', ['ls-files', '-z'], { cwd: root })
       .toString('utf8')
       .split('\0')
-      .filter((file) => file && !file.endsWith('.test.cjs'));
+      .filter((file) => file && !file.endsWith('.test.cjs'))
+      .filter((file) => fs.existsSync(path.join(root, file)));
     const hits = [];
     for (const file of files) {
-      const text = fs.readFileSync(path.join(root, file), 'utf8');
+      const fullPath = path.join(root, file);
+      if (!fs.existsSync(fullPath)) continue;
+      const text = fs.readFileSync(fullPath, 'utf8');
       const body = `${file}\n${text}`.replaceAll('archlens.dev', '');
       if (productCoupling.exec(body)) {
         hits.push(file);

@@ -19,9 +19,9 @@ zones.ts                      # load/validate zones.yaml for Pulumi
 docs/baselines/               # per-zone snapshots
 .github/actions/              # reusable composite actions (zones + products)
 .github/workflows/            # edge-dns CI + reusable product Pulumi workflow
-scripts/setup-cloudflare-hosting.sh
+cmd/setup-cloudflare-hosting   # product bootstrap; put cmd/ on PATH
 scripts/zones-matrix.cjs      # emit stack list JSON from zones.yaml
-examples/product-cloudflare/  # thin shims to copy into product repos
+examples/product-cloudflare/  # thin CI workflow to copy into product repos
 ```
 
 ## Stacks (one per zone)

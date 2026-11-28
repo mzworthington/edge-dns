@@ -5,7 +5,8 @@ Copy these into a product repo so CI and bootstrap stay thin while logic lives i
 | Copy from | Copy to (product repo) |
 |-----------|------------------------|
 | `.github/workflows/pulumi-cloudflare.yml` | `.github/workflows/pulumi-cloudflare.yml` |
-| `bin/setup-cloudflare-hosting.sh` (shim) | `bin/setup-cloudflare-hosting.sh` |
 | `.env.example` | `.env.example` (merge as needed) |
+
+Bootstrap is `setup-cloudflare-hosting` from the edge-dns checkout (`cmd` on `PATH`), not a copied script.
 
 Full guide: [docs/reusable-cloudflare-ci.md](../../docs/reusable-cloudflare-ci.md).
